@@ -10,7 +10,7 @@ function dfilezx81() {
         this.dfile[300] = 135;
     }
 
-    this.render = function () {
+    this.render = function (target) {
         this.bg.fill(220);
         this.bg.noStroke();
         this.bg.noSmooth();
@@ -33,9 +33,6 @@ function dfilezx81() {
             }
         }
 
-        var x = createImage(256,192);
-        x.copy(this.bg, 0,0,256,192,0,0,256,192);
-
-        return x;
+        target.copy(this.bg, 0,0,256,192,0,0,256,192);
     }
 }
