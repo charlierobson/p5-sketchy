@@ -2,6 +2,7 @@
 var dfile;
 var imgtarget;
 var imgLcursor;
+var imgGcursor;
 var dfilePanel;
 
 var plotmode = 0;
@@ -17,9 +18,17 @@ function setup() {
   createCanvas(800, 600);
   imgtarget = createImage(256, 192);
   imgLcursor = dfile.char(0xb1);
+  imgGcursor = dfile.char(0xac);
   noSmooth();
 
   dfilePanel = new dfilePanel_t();
+
+
+  radio = createRadio();
+  radio.option('[L]', 1);
+  radio.option('[G]', 2);
+  radio.style('width', '50px');
+  textAlign(CENTER);
 }
 
 function draw() {
@@ -30,7 +39,7 @@ function draw() {
   if (plotting) {
     text("plot " + plotmode, 8, 400);
   } else {
-    if ((millis() & 512) == 0) image(imgLcursor, dfile.cx * 16, dfile.cy * 16, 16, 16);
+    if ((millis() & 512) == 0) image(2 != radio.value() ? imgLcursor : imgGcursor, dfile.cx * 16, dfile.cy * 16, 16, 16);
     text("text", 8, 400);
   }
 }
@@ -68,7 +77,7 @@ function keyPressed() {
 function keyTyped() {
   print(key, typeof key);
   let zxcc = dfile.a2z(key);
-  dfile.rst10_zeddy(zxcc);
+  dfile.rst10_zeddy(zxcc + (2 != radio.value() ? 0 : 128));
 }
 
 function dfilePanel_t() {
