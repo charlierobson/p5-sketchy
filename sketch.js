@@ -1,7 +1,12 @@
+
 var dfile;
 var imgtarget;
 var imgLcursor;
 var dfilePanel;
+
+var plotmode = 0;
+var plotting = false;
+
 
 function preload() {
   dfile = new dfilezx81();
@@ -22,46 +27,81 @@ function draw() {
   dfile.render(imgtarget);
   image(imgtarget, 0, 0, 512, 384);
 
-  if ((millis() & 512) == 0) image(imgLcursor, dfile.cx * 16, dfile.cy * 16, 16, 16);
+  if (plotting) {
+    text("plot " + plotmode, 8, 400);
+  } else {
+    if ((millis() & 512) == 0) image(imgLcursor, dfile.cx * 16, dfile.cy * 16, 16, 16);
+    text("text", 8, 400);
+  }
 }
 
 function mouseClicked() {
-  dfilePanel.mouseClicked(0, 0);
+  dfilePanel.mouseClicked();
+}
+
+function mouseDragged() {
+  dfilePanel.mouseDragged();
+}
+
+function mousePressed() {
+  let px = mouseX / 8;
+  let py = mouseY / 8;
+  plotmode = dfile.pleek(px, py) ? 0 : 1;
 }
 
 function keyPressed() {
-  console.log("key: " + key.charCodeAt(0));
   if (keyCode === BACKSPACE) {
     dfile.cursorLeft();
     dfile.rst10_ascii(" ");
     dfile.cursorLeft();
-    return;
   } else if (keyCode === UP_ARROW) {
     dfile.cursorUp();
-    return;
   } else if (keyCode === DOWN_ARROW) {
     dfile.cursorDown();
-    return;
   } else if (keyCode === LEFT_ARROW) {
     dfile.cursorLeft();
-    return;
   } else if (keyCode === RIGHT_ARROW) {
     dfile.cursorRight();
-    return;
   }
+}
 
-  dfile.rst10_ascii(key);
+function keyTyped() {
+  print(key, typeof key);
+  let zxcc = dfile.a2z(key);
+  dfile.rst10_zeddy(zxcc);
 }
 
 function dfilePanel_t() {
-  this.mouseClicked = function (xo, yo) {
-    if (mouseX < xo || mouseX - xo >= 512 ||
-      mouseY < yo || mouseY - yo >= 384) {
+  this.xo = 0;
+  this.yo = 0;
+
+  this.mouseWithin = function () {
+    return mouseX >= this.xo &&
+      mouseX - this.xo < 512 &&
+      mouseY >= this.yo &&
+      mouseY - this.yo < 384;
+  }
+
+  this.mouseClicked = function () {
+    if (!this.mouseWithin()) {
       return;
     }
 
-    //this.deselect();
-    dfile.cx = (int)(mouseX / 16);
-    dfile.cy = (int)(mouseY / 16);
+    if (plotting) {
+      plotting = false;
+    } else {
+      dfile.cx = (int)(mouseX / 16);
+      dfile.cy = (int)(mouseY / 16);
+    }
+  }
+
+  this.mouseDragged = function () {
+    if (!this.mouseWithin()) {
+      return;
+    }
+
+    plotting = true;
+
+    dfile.plot((int)(mouseX / 8), (int)(mouseY / 8), plotmode);
   }
 }

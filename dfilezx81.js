@@ -8,6 +8,7 @@ function dfilezx81() {
         this.bg = createGraphics(256, 192);
         this.dfilemem = new ArrayBuffer(32 * 24);
         this.dfile = new Uint8Array(this.dfilemem);
+        this.dfile.fill(0);
     }
 
     this.char = function (charcode) {
@@ -20,7 +21,7 @@ function dfilezx81() {
 
     this.a2z = function (cc) {
         let zeddycs = " ??????????\"£$:?()><=+-*/;,.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        let i = zeddycs.indexOf(cc);
+        let i = zeddycs.indexOf(cc.toUpperCase());
         if (i == -1) {
             i = 15;
         }
@@ -62,6 +63,63 @@ function dfilezx81() {
         this.cursorRight();
     }
 
+    this.rst10_zeddy = function (cc) {
+        this.dfile[this.cx + 32 * this.cy] = cc;
+        this.cursorRight();
+    }
+
+    this.plot = function (px, py, mode) {
+        let b = (py & 1) == 0 ? 1 : 4;
+        if ((px & 1) != 0) {
+          b *= 2;
+        }
+    
+        let i = (int)(px / 2) + (int)(py / 2) * 32;
+
+        let c = this.dfile[i];
+        if ((c & 127) > 8) {
+          c = 0;
+        }
+        if (c > 127) {
+          c ^= 0x8f;
+        }
+    
+        if (mode == 0) {
+          c = ~b & c;
+        } else if (mode == 1) {
+          c |= b;
+        } else {
+          c = c ^ b;
+        }
+
+        if (c > 7) {
+          c ^= 0x8f;
+        }
+
+        console.log(c);
+
+        this.dfile[i] = c;
+    }
+
+    this.pleek = function (px, py) {
+        let b = (py & 1) == 0 ? 1 : 4;
+        if ((px & 1) != 0) {
+          b *= 2;
+        }
+    
+        let i = (int)(px / 2) + (int)(py / 2) * 32;
+
+        let c = this.dfile[i];
+        if ((c & 127) > 8) {
+          c = 0;
+        }
+        if (c > 127) {
+          c ^= 0x8f;
+        }
+
+        return (c & b) != 0;
+      }
+    
     this.render = function (target) {
         this.bg.fill(220);
         this.bg.noStroke();
@@ -72,11 +130,11 @@ function dfilezx81() {
             for (let x = 0; x < 32; ++x) {
                 let b = this.dfile[x + 32 * y];
                 let fo = b > 127 ? 512 : 0;
-                b &= 127;
                 if ((b & 0x40) == 0x40) {
                     b = 15;
                 }
                 if (b != 0) {
+                    b &= 127;
                     this.bg.copy(this.font, 0, b * 8 + fo, 8, 8, x * 8, y * 8, 8, 8);
                 } else if (cc) {
                     this.bg.rect(x * 8, y * 8, 8, 8);
