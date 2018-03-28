@@ -96,8 +96,6 @@ function dfilezx81() {
           c ^= 0x8f;
         }
 
-        console.log(c);
-
         this.dfile[i] = c;
     }
 

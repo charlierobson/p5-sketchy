@@ -3,11 +3,11 @@ var dfile;
 var imgtarget;
 var imgLcursor;
 var imgGcursor;
+
 var dfilePanel;
+var modeButton;
 
-var plotmode = 0;
 var plotting = false;
-
 
 function preload() {
   dfile = new dfilezx81();
@@ -21,31 +21,37 @@ function setup() {
   imgGcursor = dfile.char(0xac);
   noSmooth();
 
-  dfilePanel = new dfilePanel_t();
-
-
-  radio = createRadio();
-  radio.option('[L]', 1);
-  radio.option('[G]', 2);
-  radio.style('width', '50px');
-  textAlign(CENTER);
+  dfilePanel = new DFilePanel(8, 8, 512, 384);
+  modeButton = new ModeButton(24, 400, 16, 16);
 }
 
 function draw() {
   background(128);
-  dfile.render(imgtarget);
-  image(imgtarget, 0, 0, 512, 384);
 
-  if (plotting) {
-    text("plot " + plotmode, 8, 400);
-  } else {
-    if ((millis() & 512) == 0) image(2 != radio.value() ? imgLcursor : imgGcursor, dfile.cx * 16, dfile.cy * 16, 16, 16);
-    text("text", 8, 400);
+  dfilePanel.draw();
+
+  fill(0);
+  noStroke();
+
+  if (!plotting) {
+    let img = modeButton.mode == 0 ? imgLcursor : imgGcursor;
+    if ((millis() & 512) == 0) image(img, dfile.cx * 16 + dfilePanel.x, dfile.cy * 16 + dfilePanel.y, 16, 16);
   }
+
+  modeButton.draw();
+}
+
+function mouseMoved() {
+  modeButton.mouseMoved();
 }
 
 function mouseClicked() {
+  modeButton.mouseClicked();
   dfilePanel.mouseClicked();
+}
+
+function doubleClicked() {
+  dfilePanel.doubleClicked();
 }
 
 function mouseDragged() {
@@ -53,9 +59,7 @@ function mouseDragged() {
 }
 
 function mousePressed() {
-  let px = mouseX / 8;
-  let py = mouseY / 8;
-  plotmode = dfile.pleek(px, py) ? 0 : 1;
+  dfilePanel.mousePressed();
 }
 
 function keyPressed() {
@@ -77,40 +81,5 @@ function keyPressed() {
 function keyTyped() {
   print(key, typeof key);
   let zxcc = dfile.a2z(key);
-  dfile.rst10_zeddy(zxcc + (2 != radio.value() ? 0 : 128));
-}
-
-function dfilePanel_t() {
-  this.xo = 0;
-  this.yo = 0;
-
-  this.mouseWithin = function () {
-    return mouseX >= this.xo &&
-      mouseX - this.xo < 512 &&
-      mouseY >= this.yo &&
-      mouseY - this.yo < 384;
-  }
-
-  this.mouseClicked = function () {
-    if (!this.mouseWithin()) {
-      return;
-    }
-
-    if (plotting) {
-      plotting = false;
-    } else {
-      dfile.cx = (int)(mouseX / 16);
-      dfile.cy = (int)(mouseY / 16);
-    }
-  }
-
-  this.mouseDragged = function () {
-    if (!this.mouseWithin()) {
-      return;
-    }
-
-    plotting = true;
-
-    dfile.plot((int)(mouseX / 8), (int)(mouseY / 8), plotmode);
-  }
+  dfile.rst10_zeddy(zxcc + modeButton.mode);
 }
