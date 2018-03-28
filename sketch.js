@@ -7,6 +7,8 @@ var imgGcursor;
 var dfilePanel;
 var modeButton;
 
+var allButtons;
+
 var plotting = false;
 
 function preload() {
@@ -23,6 +25,7 @@ function setup() {
 
   dfilePanel = new DFilePanel(8, 8, 512, 384);
   modeButton = new ModeButton(24, 400, 16, 16);
+  allButtons = [ dfilePanel, modeButton ];
 }
 
 function draw() {
@@ -39,27 +42,6 @@ function draw() {
   }
 
   modeButton.draw();
-}
-
-function mouseMoved() {
-  modeButton.mouseMoved();
-}
-
-function mouseClicked() {
-  modeButton.mouseClicked();
-  dfilePanel.mouseClicked();
-}
-
-function doubleClicked() {
-  dfilePanel.doubleClicked();
-}
-
-function mouseDragged() {
-  dfilePanel.mouseDragged();
-}
-
-function mousePressed() {
-  dfilePanel.mousePressed();
 }
 
 function keyPressed() {
@@ -82,4 +64,31 @@ function keyTyped() {
   print(key, typeof key);
   let zxcc = dfile.a2z(key);
   dfile.rst10_zeddy(zxcc + modeButton.mode);
+}
+
+
+function tellButtons(thingToDo) {
+  for (let x of allButtons) {
+    thingToDo(x);
+  }
+}
+
+function mouseMoved() {
+  tellButtons((x)=>{x.mouseMoved()});
+}
+
+function mouseClicked() {
+  tellButtons((x)=>{x.mouseClicked()});
+}
+
+function doubleClicked() {
+  tellButtons((x)=>{x.doubleClicked()});
+}
+
+function mouseDragged() {
+  tellButtons((x)=>{x.mouseDragged()});
+}
+
+function mousePressed() {
+  tellButtons((x)=>{x.mousePressed()});
 }
