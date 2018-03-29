@@ -11,6 +11,8 @@ var allButtons = [];
 
 var plotting = false;
 
+var selectedChr = 0;
+
 function preload() {
   dfile = new dfilezx81();
   dfile.preload();
@@ -45,7 +47,7 @@ function setup() {
     new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE")})
   ];
   for (let i = 0; i < 128; i ++) {
-    allButtons.push(new CharButton(i, 540 + (i & 7) * 24, 10 + (int)(i / 8) * 24))
+    allButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
   }
 }
 

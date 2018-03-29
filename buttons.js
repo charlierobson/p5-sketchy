@@ -118,7 +118,7 @@ TextButton.prototype.mouseClicked = function () {
 
 const CharButton = function (chr, x, y) {
     Buttonx.call(this, x, y, 16, 16)
-    this.chr = chr
+    this.chr = (chr & 63) + (chr > 63 ? 128 : 0)
 }
 
 CharButton.prototype = Object.create(Buttonx.prototype);
@@ -135,10 +135,20 @@ CharButton.prototype.draw = function () {
     if (this.state == 1) {
         this.showHilite();
     }
+    if (selectedChr == this.chr) {
+        this.showHilite();
+    }
 }
 
 CharButton.prototype.mouseClicked = function () {
     if (this.state == 1) {
+        selectedChr = this.chr
+    }
+}
+
+CharButton.prototype.doubleClicked = function () {
+    if (this.state == 1) {
+        dfile.rst10_zeddy(this.chr)
     }
 }
 
