@@ -113,6 +113,35 @@ TextButton.prototype.mouseClicked = function () {
     }
 }
 
+
+// ----------------------------------------------------------------------------------------
+
+const CharButton = function (chr, x, y) {
+    Buttonx.call(this, x, y, 16, 16)
+    this.chr = chr
+}
+
+CharButton.prototype = Object.create(Buttonx.prototype);
+
+CharButton.prototype.showHilite = function () {
+    strokeWeight(2);
+    noFill();
+    stroke(color(0, 255, 0));
+    rect(this.x - 1, this.y - 1, this.w + 2, this.h + 2);
+}
+
+CharButton.prototype.draw = function () {
+    image(dfile.char(this.chr), this.x, this.y, 16, 16);
+    if (this.state == 1) {
+        this.showHilite();
+    }
+}
+
+CharButton.prototype.mouseClicked = function () {
+    if (this.state == 1) {
+    }
+}
+
 // ----------------------------------------------------------------------------------------
 
 const DFilePanel = function (x, y, w, h) {

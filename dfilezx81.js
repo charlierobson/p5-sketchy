@@ -185,9 +185,8 @@ function dfilezx81() {
             for (let i = 0; i < 768; ++i) {
                 this.dfile[i] = parseInt(result[i].substring(1,3), 16)
             }
+            return true;
         }
-        else {
-            this.printat(1, 1, "INVALID FILE")
-        }
+        return false;
     }
 }

@@ -19,13 +19,16 @@ function preload() {
 function filedropped (dropped) {
   if (dropped.type === 'text') {
     let strings = dropped.data
-    dfile.load(strings)
+    if (!dfile.load(strings)) {
+      dfile.printat(1, 1, "INVALID FILE")
+    }
   }
 }
 
 
 function setup() {
-  let c = createCanvas(800, 600);
+  let c = createCanvas(800, 740);
+
   c.drop(filedropped)
   imgtarget = createImage(256, 192);
   imgLcursor = dfile.char(0xb1);
@@ -41,6 +44,9 @@ function setup() {
     new TextButton("SAVE", 12*16+24, 400, ()=>{dfile.save()}),
     new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE")})
   ];
+  for (let i = 0; i < 128; i ++) {
+    allButtons.push(new CharButton(i, 540 + (i & 7) * 24, 10 + (int)(i / 8) * 24))
+  }
 }
 
 function drawZeddyText(text, x, y, isInverse) {
