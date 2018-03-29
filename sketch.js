@@ -39,7 +39,7 @@ function setup() {
     modeButton,
     new TextButton("CLS", 8*16+24, 400, ()=>{dfile.cls()}),
     new TextButton("SAVE", 12*16+24, 400, ()=>{dfile.save()}),
-    new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls()})
+    new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE")})
   ];
 }
 

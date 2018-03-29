@@ -13,6 +13,8 @@ function dfilezx81() {
 
     this.cls = function () {
         this.dfile.fill(0);
+        this.cx = 0
+        this.cy = 0
     }
 
     this.char = function (charcode) {
@@ -148,6 +150,17 @@ function dfilezx81() {
         target.copy(this.bg, 0, 0, 256, 192, 0, 0, 256, 192);
     }
 
+    this.printat = function (x, y, str) {
+        this.cx = x & 31;
+        this.cy = y % 24;
+        this.print(str)
+    }
+
+    this.print = function (str) {
+        for (let i = 0; i < str.length; ++i) {
+            this.rst10_ascii(str.charAt(i))
+        }
+    }
 
     this.save = function (filename) {
         let strings = []
@@ -165,6 +178,7 @@ function dfilezx81() {
     }
 
     this.load = function (input) {
+        this.cls()
         let regex = /\$[0-9A-Fa-f]{2}/g
         let result = input.match(regex);
         if (result != null && result.length == 768) {
@@ -173,8 +187,7 @@ function dfilezx81() {
             }
         }
         else {
-            dfile.cls()
-            drawZeddyText("INVALID TEXT", 1, 1, true)
+            this.printat(1, 1, "INVALID FILE")
         }
     }
 }
