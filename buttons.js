@@ -54,7 +54,7 @@ Buttonx.prototype.doubleClicked = function () {
 // ----------------------------------------------------------------------------------------
 
 const ModeButton = function (x, y, w, h) {
-    Buttonx.call(this, x, y, w, h)
+    Buttonx.call(this, x, y, 6*16, 16)
     this.mode = 0
 }
 
@@ -67,11 +67,15 @@ ModeButton.prototype.showHilite = function () {
     rect(this.x - 1, this.y - 1, this.w + 2, this.h + 2);
 }
 
+
 ModeButton.prototype.draw = function () {
-    fill(0);
-    textAlign(CENTER, CENTER);
-    text("Mode", this.x + this.w / 2, this.y + this.h + 10);
-    image(this.mode == 0 ? imgLcursor : imgGcursor, this.x, this.y, this.w, this.h);
+    let lg = this.mode == 0 ? "L" : "G"
+    image(dfile.char(dfile.a2z("M") + this.mode), this.x, this.y, 16, 16);
+    image(dfile.char(dfile.a2z("O") + this.mode), this.x + 16, this.y, 16, 16);
+    image(dfile.char(dfile.a2z("D") + this.mode), this.x + 32, this.y, 16, 16);
+    image(dfile.char(dfile.a2z("E") + this.mode), this.x + 48, this.y, 16, 16);
+    image(dfile.char(dfile.a2z(":") + this.mode), this.x + 64, this.y, 16, 16);
+    image(dfile.char(dfile.a2z(lg) + this.mode), this.x + 80, this.y, 16, 16);
     if (this.state == 1) {
         this.showHilite();
     }
@@ -80,6 +84,36 @@ ModeButton.prototype.draw = function () {
 ModeButton.prototype.mouseClicked = function () {
     if (this.state == 1) {
         this.mode = 128 - this.mode;
+    }
+}
+
+// ----------------------------------------------------------------------------------------
+
+const ClsButton = function (x, y, w, h) {
+    Buttonx.call(this, x, y, 3*16, 16)
+}
+
+ClsButton.prototype = Object.create(Buttonx.prototype);
+
+ClsButton.prototype.showHilite = function () {
+    strokeWeight(2);
+    noFill();
+    stroke(color(0, 255, 0));
+    rect(this.x - 1, this.y - 1, this.w + 2, this.h + 2);
+}
+
+ClsButton.prototype.draw = function () {
+    image(dfile.char(dfile.a2z("C")), this.x, this.y, 16, 16);
+    image(dfile.char(dfile.a2z("L")), this.x + 16, this.y, 16, 16);
+    image(dfile.char(dfile.a2z("S")), this.x + 32, this.y, 16, 16);
+    if (this.state == 1) {
+        this.showHilite();
+    }
+}
+
+ClsButton.prototype.mouseClicked = function () {
+    if (this.state == 1) {
+        dfile.cls();
     }
 }
 
@@ -126,7 +160,9 @@ DFilePanel.prototype.mouseDragged = function () {
 }
 
 DFilePanel.prototype.mousePressed = function () {
-    let px = (int)((mouseX - this.x) / 8);
-    let py = (int)((mouseY - this.y) / 8);
-    this.plotmode = dfile.pleek(px, py) ? 0 : 1;
+    if (this.state == 1) {
+        let px = (int)((mouseX - this.x) / 8);
+        let py = (int)((mouseY - this.y) / 8);
+        this.plotmode = dfile.pleek(px, py) ? 0 : 1;
+    }
 }

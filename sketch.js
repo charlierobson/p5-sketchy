@@ -24,24 +24,26 @@ function setup() {
   noSmooth();
 
   dfilePanel = new DFilePanel(8, 8, 512, 384);
-  modeButton = new ModeButton(24, 400, 16, 16);
-  allButtons = [ dfilePanel, modeButton ];
+  modeButton = new ModeButton(24, 400);
+  allButtons = [
+    dfilePanel,
+    modeButton,
+    new ClsButton(136, 400)
+  ];
 }
 
 function draw() {
   background(128);
 
-  dfilePanel.draw();
-
   fill(0);
   noStroke();
+
+  tellButtons((x)=>{x.draw()});
 
   if (!plotting) {
     let img = modeButton.mode == 0 ? imgLcursor : imgGcursor;
     if ((millis() & 512) == 0) image(img, dfile.cx * 16 + dfilePanel.x, dfile.cy * 16 + dfilePanel.y, 16, 16);
   }
-
-  modeButton.draw();
 }
 
 function keyPressed() {

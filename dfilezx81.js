@@ -11,6 +11,10 @@ function dfilezx81() {
         this.dfile.fill(0);
     }
 
+    this.cls = function () {
+        this.dfile.fill(0);
+    }
+
     this.char = function (charcode) {
         glyph = createImage(8, 8);
         let fo = charcode > 127 ? 512 : 0;
