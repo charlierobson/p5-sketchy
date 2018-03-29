@@ -69,13 +69,9 @@ ModeButton.prototype.showHilite = function () {
 
 
 ModeButton.prototype.draw = function () {
-    let lg = this.mode == 0 ? "L" : "G"
-    image(dfile.char(dfile.a2z("M") + this.mode), this.x, this.y, 16, 16);
-    image(dfile.char(dfile.a2z("O") + this.mode), this.x + 16, this.y, 16, 16);
-    image(dfile.char(dfile.a2z("D") + this.mode), this.x + 32, this.y, 16, 16);
-    image(dfile.char(dfile.a2z("E") + this.mode), this.x + 48, this.y, 16, 16);
-    image(dfile.char(dfile.a2z(":") + this.mode), this.x + 64, this.y, 16, 16);
-    image(dfile.char(dfile.a2z(lg) + this.mode), this.x + 80, this.y, 16, 16);
+    let text = "MODE:"
+    text += this.mode == 0 ? "L" : "G"
+    drawZeddyText(text, this.x, this.y, this.mode == 128);
     if (this.state == 1) {
         this.showHilite();
     }
@@ -89,31 +85,31 @@ ModeButton.prototype.mouseClicked = function () {
 
 // ----------------------------------------------------------------------------------------
 
-const ClsButton = function (x, y, w, h) {
-    Buttonx.call(this, x, y, 3*16, 16)
+const TextButton = function (text, x, y, thingToDo) {
+    Buttonx.call(this, x, y, text.length * 16, 16)
+    this.text = text
+    this.thingToDo = thingToDo
 }
 
-ClsButton.prototype = Object.create(Buttonx.prototype);
+TextButton.prototype = Object.create(Buttonx.prototype);
 
-ClsButton.prototype.showHilite = function () {
+TextButton.prototype.showHilite = function () {
     strokeWeight(2);
     noFill();
     stroke(color(0, 255, 0));
     rect(this.x - 1, this.y - 1, this.w + 2, this.h + 2);
 }
 
-ClsButton.prototype.draw = function () {
-    image(dfile.char(dfile.a2z("C")), this.x, this.y, 16, 16);
-    image(dfile.char(dfile.a2z("L")), this.x + 16, this.y, 16, 16);
-    image(dfile.char(dfile.a2z("S")), this.x + 32, this.y, 16, 16);
+TextButton.prototype.draw = function () {
+    drawZeddyText(this.text, this.x, this.y);
     if (this.state == 1) {
         this.showHilite();
     }
 }
 
-ClsButton.prototype.mouseClicked = function () {
+TextButton.prototype.mouseClicked = function () {
     if (this.state == 1) {
-        dfile.cls();
+        this.thingToDo();
     }
 }
 

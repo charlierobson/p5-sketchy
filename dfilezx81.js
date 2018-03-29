@@ -75,29 +75,29 @@ function dfilezx81() {
     this.plot = function (px, py, mode) {
         let b = (py & 1) == 0 ? 1 : 4;
         if ((px & 1) != 0) {
-          b *= 2;
+            b *= 2;
         }
-    
+
         let i = (int)(px / 2) + (int)(py / 2) * 32;
 
         let c = this.dfile[i];
         if ((c & 127) > 8) {
-          c = 0;
+            c = 0;
         }
         if (c > 127) {
-          c ^= 0x8f;
+            c ^= 0x8f;
         }
-    
+
         if (mode == 0) {
-          c = ~b & c;
+            c = ~b & c;
         } else if (mode == 1) {
-          c |= b;
+            c |= b;
         } else {
-          c = c ^ b;
+            c = c ^ b;
         }
 
         if (c > 7) {
-          c ^= 0x8f;
+            c ^= 0x8f;
         }
 
         this.dfile[i] = c;
@@ -106,22 +106,22 @@ function dfilezx81() {
     this.pleek = function (px, py) {
         let b = (py & 1) == 0 ? 1 : 4;
         if ((px & 1) != 0) {
-          b *= 2;
+            b *= 2;
         }
-    
+
         let i = (int)(px / 2) + (int)(py / 2) * 32;
 
         let c = this.dfile[i];
         if ((c & 127) > 8) {
-          c = 0;
+            c = 0;
         }
         if (c > 127) {
-          c ^= 0x8f;
+            c ^= 0x8f;
         }
 
         return (c & b) != 0;
-      }
-    
+    }
+
     this.render = function (target) {
         this.bg.fill(220);
         this.bg.noStroke();
@@ -146,5 +146,35 @@ function dfilezx81() {
         }
 
         target.copy(this.bg, 0, 0, 256, 192, 0, 0, 256, 192);
+    }
+
+
+    this.save = function (filename) {
+        let strings = []
+        for (let y = 0, n = 0; y < 24; ++y) {
+            let s = "\t.byte\t"
+            for (let x = 0; x < 32; ++x) {
+                s += "$" + ("00" + this.dfile[n++].toString(16)).substr(-2)
+                if (x != 31) {
+                    s += ", "
+                }
+            }
+            strings.push(s);
+        }
+        saveStrings(strings, "screen.asm")
+    }
+
+    this.load = function (input) {
+        let regex = /\$[0-9A-Fa-f]{2}/g
+        let result = input.match(regex);
+        if (result != null && result.length == 768) {
+            for (let i = 0; i < 768; ++i) {
+                this.dfile[i] = parseInt(result[i].substring(1,3), 16)
+            }
+        }
+        else {
+            dfile.cls()
+            drawZeddyText("INVALID TEXT", 1, 1, true)
+        }
     }
 }

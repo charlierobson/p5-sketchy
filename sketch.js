@@ -7,7 +7,7 @@ var imgGcursor;
 var dfilePanel;
 var modeButton;
 
-var allButtons;
+var allButtons = [];
 
 var plotting = false;
 
@@ -16,8 +16,17 @@ function preload() {
   dfile.preload();
 }
 
+function filedropped (dropped) {
+  if (dropped.type === 'text') {
+    let strings = dropped.data
+    dfile.load(strings)
+  }
+}
+
+
 function setup() {
-  createCanvas(800, 600);
+  let c = createCanvas(800, 600);
+  c.drop(filedropped)
   imgtarget = createImage(256, 192);
   imgLcursor = dfile.char(0xb1);
   imgGcursor = dfile.char(0xac);
@@ -28,8 +37,17 @@ function setup() {
   allButtons = [
     dfilePanel,
     modeButton,
-    new ClsButton(136, 400)
+    new TextButton("CLS", 8*16+24, 400, ()=>{dfile.cls()}),
+    new TextButton("SAVE", 12*16+24, 400, ()=>{dfile.save()}),
+    new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls()})
   ];
+}
+
+function drawZeddyText(text, x, y, isInverse) {
+  for (let i = 0; i < text.length; i++) {
+    image(dfile.char(dfile.a2z(text.charAt(i))), x, y, 16, 16);
+    x += 16;
+  }
 }
 
 function draw() {
