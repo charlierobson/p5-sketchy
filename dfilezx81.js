@@ -52,7 +52,7 @@ function dfilezx81() {
 
     this.cursorDown = function () {
         this.cy += 1;
-        if (this.cy > 24) {
+        if (this.cy > 23) {
             this.cy = 0;
         }
     }
