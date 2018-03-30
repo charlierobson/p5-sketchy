@@ -5,10 +5,10 @@ var imgLcursor;
 var imgGcursor;
 
 var dfilePanel;
-var modeButton;
 
 var allButtons = [];
 
+var mode = 0;
 var plotting = false;
 
 var selectedChr = 0;
@@ -38,13 +38,14 @@ function setup() {
   noSmooth();
 
   dfilePanel = new DFilePanel(8, 8, 512, 384);
-  modeButton = new ModeButton(24, 400);
+
   allButtons = [
     dfilePanel,
-    modeButton,
+    new ModeButton(24, 400),
     new TextButton("CLS", 8*16+24, 400, ()=>{dfile.cls()}),
     new TextButton("SAVE", 12*16+24, 400, ()=>{dfile.save()}),
-    new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE")})
+    new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE")}),
+    new TextButton("FILL", 22*16+24, 400, ()=>{if (mode == 0) rgnFill()})
   ];
   for (let i = 0; i < 128; i ++) {
     allButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
@@ -67,9 +68,13 @@ function draw() {
   tellButtons((x)=>{x.draw()});
 
   if (!plotting) {
-    let img = modeButton.mode == 0 ? imgLcursor : imgGcursor;
+    let img = mode == 0 ? imgLcursor : imgGcursor;
     if ((millis() & 512) == 0) image(img, dfile.cx * 16 + dfilePanel.x, dfile.cy * 16 + dfilePanel.y, 16, 16);
   }
+}
+
+function rgnFill() {
+  dfile.fillrgn(selrectx, selrecty, selrectw, selrecth, selectedChr)
 }
 
 function keyPressed() {
@@ -91,9 +96,8 @@ function keyPressed() {
 function keyTyped() {
   print(key, typeof key);
   let zxcc = dfile.a2z(key);
-  dfile.rst10_zeddy(zxcc + modeButton.mode);
+  dfile.rst10_zeddy(zxcc + mode);
 }
-
 
 function tellButtons(thingToDo) {
   for (let x of allButtons) {

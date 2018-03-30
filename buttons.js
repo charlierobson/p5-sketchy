@@ -54,8 +54,7 @@ Buttonx.prototype.doubleClicked = function () {
 // ----------------------------------------------------------------------------------------
 
 const ModeButton = function (x, y, w, h) {
-    Buttonx.call(this, x, y, 6*16, 16)
-    this.mode = 0
+    Buttonx.call(this, x, y, 6 * 16, 16)
 }
 
 ModeButton.prototype = Object.create(Buttonx.prototype);
@@ -70,8 +69,8 @@ ModeButton.prototype.showHilite = function () {
 
 ModeButton.prototype.draw = function () {
     let text = "MODE:"
-    text += this.mode == 0 ? "L" : "G"
-    drawZeddyText(text, this.x, this.y, this.mode == 128);
+    text += mode == 0 ? "L" : "G"
+    drawZeddyText(text, this.x, this.y, mode == 128);
     if (this.state == 1) {
         this.showHilite();
     }
@@ -79,7 +78,7 @@ ModeButton.prototype.draw = function () {
 
 ModeButton.prototype.mouseClicked = function () {
     if (this.state == 1) {
-        this.mode = 128 - this.mode;
+        mode = 128 - mode;
     }
 }
 
@@ -148,7 +147,9 @@ CharButton.prototype.mouseClicked = function () {
 
 CharButton.prototype.doubleClicked = function () {
     if (this.state == 1) {
-        dfile.rst10_zeddy(this.chr)
+        if (!plotting) {
+            dfile.rst10_zeddy(this.chr)
+        }
     }
 }
 
@@ -172,6 +173,18 @@ DFilePanel.prototype.showHilite = function () {
 DFilePanel.prototype.draw = function () {
     dfile.render(this.imgtarget);
     image(this.imgtarget, this.x, this.y, this.w, this.h);
+    if (this.dragEndX != -1) {
+        noFill()
+        strokeWeight(1)
+        stroke((millis() & 512) == 512 ? color(200, 0, 0) : color(0, 200, 0))
+
+        selrectx = Math.min(this.dragStartX, this.dragEndX)
+        selrecty = Math.min(this.dragStartY, this.dragEndY)
+        selrectw = Math.abs(this.dragStartX - this.dragEndX) + 1
+        selrecth = Math.abs(this.dragStartY - this.dragEndY) + 1
+
+        rect(selrectx * 16 + this.x, selrecty * 16 + this.y, selrectw * 16, selrecth * 16)
+    }
 }
 
 DFilePanel.prototype.doubleClicked = function () {
@@ -185,19 +198,26 @@ DFilePanel.prototype.doubleClicked = function () {
 }
 
 DFilePanel.prototype.mouseDragged = function () {
+    console.log("mdrag")
     if (!this.mouseWithin()) {
         return;
     }
-
     plotting = true;
-
-    dfile.plot((int)((mouseX - this.x) / 8), (int)((mouseY - this.y) / 8), this.plotmode);
+    if (mode == 128) {
+        dfile.plot((int)((mouseX - this.x) / 8), (int)((mouseY - this.y) / 8), this.plotmode);
+    } else {
+        this.dragEndX = (int)((mouseX - this.x) / 16);
+        this.dragEndY = (int)((mouseY - this.y) / 16);
+    }
 }
 
 DFilePanel.prototype.mousePressed = function () {
     if (this.state == 1) {
         let px = (int)((mouseX - this.x) / 8);
         let py = (int)((mouseY - this.y) / 8);
+        this.dragStartX = (int)((mouseX - this.x) / 16);
+        this.dragEndX = -1
+        this.dragStartY = (int)((mouseY - this.y) / 16);
         this.plotmode = dfile.pleek(px, py) ? 0 : 1;
     }
 }

@@ -17,6 +17,15 @@ function dfilezx81() {
         this.cy = 0
     }
 
+    this.fillrgn = function (x, y, w, h, c) {
+        console.log(x,y,w,h,c)
+        for (let yy = y; yy < y + h; ++yy) {
+            for (let xx = x; xx < x + w; ++xx) {
+                this.dfile[xx + yy * 32] = c;
+            }
+        }
+    }
+
     this.char = function (charcode) {
         glyph = createImage(8, 8);
         let fo = charcode > 127 ? 512 : 0;
@@ -183,7 +192,7 @@ function dfilezx81() {
         let result = input.match(regex);
         if (result != null && result.length == 768) {
             for (let i = 0; i < 768; ++i) {
-                this.dfile[i] = parseInt(result[i].substring(1,3), 16)
+                this.dfile[i] = parseInt(result[i].substring(1, 3), 16)
             }
             return true;
         }
