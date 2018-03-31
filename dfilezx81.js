@@ -18,12 +18,19 @@ function dfilezx81() {
     }
 
     this.fillrgn = function (x, y, w, h, c) {
-        console.log(x,y,w,h,c)
         for (let yy = y; yy < y + h; ++yy) {
             for (let xx = x; xx < x + w; ++xx) {
                 this.dfile[xx + yy * 32] = c;
             }
         }
+    }
+
+    this.getCharAt = function(x, y) {
+        return this.dfile[x + 32 * y]
+    }
+
+    this.setCharAt = function(x, y, c) {
+        this.dfile[x + 32 * y] = c
     }
 
     this.char = function (charcode) {

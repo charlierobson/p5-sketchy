@@ -178,12 +178,7 @@ DFilePanel.prototype.draw = function () {
         strokeWeight(1)
         stroke((millis() & 512) == 512 ? color(200, 0, 0) : color(0, 200, 0))
 
-        selrectx = Math.min(this.dragStartX, this.dragEndX)
-        selrecty = Math.min(this.dragStartY, this.dragEndY)
-        selrectw = Math.abs(this.dragStartX - this.dragEndX) + 1
-        selrecth = Math.abs(this.dragStartY - this.dragEndY) + 1
-
-        rect(selrectx * 16 + this.x, selrecty * 16 + this.y, selrectw * 16, selrecth * 16)
+        rect(this.selrectx * 16 + this.x, this.selrecty * 16 + this.y, this.selrectw * 16, this.selrecth * 16)
     }
 }
 
@@ -197,8 +192,11 @@ DFilePanel.prototype.doubleClicked = function () {
     dfile.cy = (int)((mouseY - this.y) / 16);
 }
 
+DFilePanel.prototype.selectionRect = function () {
+    return new rect_t(this.selrectx, this.selrecty, this.selrectw, this.selrecth)
+}
+
 DFilePanel.prototype.mouseDragged = function () {
-    console.log("mdrag")
     if (!this.mouseWithin()) {
         return;
     }
@@ -208,6 +206,10 @@ DFilePanel.prototype.mouseDragged = function () {
     } else {
         this.dragEndX = (int)((mouseX - this.x) / 16);
         this.dragEndY = (int)((mouseY - this.y) / 16);
+        this.selrectx = Math.min(this.dragStartX, this.dragEndX)
+        this.selrecty = Math.min(this.dragStartY, this.dragEndY)
+        this.selrectw = Math.abs(this.dragStartX - this.dragEndX) + 1
+        this.selrecth = Math.abs(this.dragStartY - this.dragEndY) + 1
     }
 }
 

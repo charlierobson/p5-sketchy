@@ -13,12 +13,19 @@ var plotting = false;
 
 var selectedChr = 0;
 
+function rect_t(x, y, w, h) {
+  this.x = x
+  this.y = y,
+    this.w = w,
+    this.h = h
+}
+
 function preload() {
   dfile = new dfilezx81();
   dfile.preload();
 }
 
-function filedropped (dropped) {
+function filedropped(dropped) {
   if (dropped.type === 'text') {
     let strings = dropped.data
     if (!dfile.load(strings)) {
@@ -27,9 +34,8 @@ function filedropped (dropped) {
   }
 }
 
-
 function setup() {
-  let c = createCanvas(800, 740);
+  let c = createCanvas(740, 600);
 
   c.drop(filedropped)
   imgtarget = createImage(256, 192);
@@ -42,12 +48,12 @@ function setup() {
   allButtons = [
     dfilePanel,
     new ModeButton(24, 400),
-    new TextButton("CLS", 8*16+24, 400, ()=>{dfile.cls()}),
-    new TextButton("SAVE", 12*16+24, 400, ()=>{dfile.save()}),
-    new TextButton("LOAD", 17*16+24, 400, ()=>{dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE")}),
-    new TextButton("FILL", 22*16+24, 400, ()=>{if (mode == 0) rgnFill()})
+    new TextButton("CLS", 8 * 16 + 24, 400, () => { dfile.cls() }),
+    new TextButton("SAVE", 12 * 16 + 24, 400, () => { dfile.save() }),
+    new TextButton("LOAD", 17 * 16 + 24, 400, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
+    new TextButton("FILL", 22 * 16 + 24, 400, () => { if (mode == 0) rgnFill() })
   ];
-  for (let i = 0; i < 128; i ++) {
+  for (let i = 0; i < 128; i++) {
     allButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
   }
 }
@@ -65,7 +71,7 @@ function draw() {
   fill(0);
   noStroke();
 
-  tellButtons((x)=>{x.draw()});
+  tellButtons((x) => { x.draw() });
 
   if (!plotting) {
     let img = mode == 0 ? imgLcursor : imgGcursor;
@@ -74,7 +80,39 @@ function draw() {
 }
 
 function rgnFill() {
-  dfile.fillrgn(selrectx, selrecty, selrectw, selrecth, selectedChr)
+  dfile.fillrgn(dfilePanel.selrectx, dfilePanel.selrecty, dfilePanel.selrectw, dfilePanel.selrecth, selectedChr)
+}
+
+function fillrgn(rcy, c) {
+  dfile.fillrgn(rcy.x, rcy.y, rcy.w, rcy.h, c)
+}
+
+function copyrgn(rcy) {
+  this.copyM = new ArrayBuffer(rcy.w * rcy.h);
+  this.copyA = new Uint8Array(this.copyM);
+  for (let b = 0, yy = rcy.y; yy < rcy.y + rcy.h; ++yy) {
+    for (let xx = rcy.x; xx < rcy.x + rcy.w; ++xx) {
+      this.copyA[b++] = dfile.getCharAt(xx, yy);
+    }
+  }
+}
+
+function pastergn(rcy) {
+  for (let b = 0, yy = rcy.y; yy < rcy.y + rcy.h; ++yy) {
+    for (let xx = rcy.x; xx < rcy.x + rcy.w; ++xx) {
+      dfile.setCharAt(xx, yy, this.copyA[b++])
+    }
+  }
+}
+
+function cpr(udp) {
+  if (plotting && keyIsDown(SHIFT)) {
+    let cr = dfilePanel.selectionRect()
+    this.copyrgn(cr)
+    this.fillrgn(cr, 0)
+    udp(cr)
+    this.pastergn(cr)
+  }
 }
 
 function keyPressed() {
@@ -83,13 +121,41 @@ function keyPressed() {
     dfile.rst10_ascii(" ");
     dfile.cursorLeft();
   } else if (keyCode === UP_ARROW) {
-    dfile.cursorUp();
+    if (plotting && keyIsDown(SHIFT)) {
+      cpr((cr) => {
+        --cr.y
+        --dfilePanel.selrecty
+      });
+    } else {
+      dfile.cursorUp()
+    }
   } else if (keyCode === DOWN_ARROW) {
-    dfile.cursorDown();
+    if (plotting && keyIsDown(SHIFT)) {
+      cpr((cr) => {
+        ++cr.y
+        ++dfilePanel.selrecty
+      })
+    } else {
+      dfile.cursorDown();
+    }
   } else if (keyCode === LEFT_ARROW) {
-    dfile.cursorLeft();
+    if (plotting && keyIsDown(SHIFT)) {
+      cpr((cr) => {
+        --dfilePanel.selrectx
+        --cr.x
+      })
+    } else {
+      dfile.cursorLeft()
+    }
   } else if (keyCode === RIGHT_ARROW) {
-    dfile.cursorRight();
+    if (plotting && keyIsDown(SHIFT)) {
+      cpr((cr) => {
+        ++dfilePanel.selrectx
+        ++cr.x
+      })
+    } else {
+      dfile.cursorRight()
+    }
   }
 }
 
@@ -106,21 +172,21 @@ function tellButtons(thingToDo) {
 }
 
 function mouseMoved() {
-  tellButtons((x)=>{x.mouseMoved()});
+  tellButtons((x) => { x.mouseMoved() });
 }
 
 function mouseClicked() {
-  tellButtons((x)=>{x.mouseClicked()});
+  tellButtons((x) => { x.mouseClicked() });
 }
 
 function doubleClicked() {
-  tellButtons((x)=>{x.doubleClicked()});
+  tellButtons((x) => { x.doubleClicked() });
 }
 
 function mouseDragged() {
-  tellButtons((x)=>{x.mouseDragged()});
+  tellButtons((x) => { x.mouseDragged() });
 }
 
 function mousePressed() {
-  tellButtons((x)=>{x.mousePressed()});
+  tellButtons((x) => { x.mousePressed() });
 }
