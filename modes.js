@@ -251,12 +251,14 @@ const PasteMode = function (srx, sry, srw, srh) {
     this.selrectw = srw
     this.selrecth = srh
 
+
     this.copyM = new ArrayBuffer(srw * srh);
     this.copyA = new Uint8Array(this.copyM);
-    this.copyBMap = createImage(srw * 16, srh * 16)
-    let n = 0;
+    this.copyBMap = createImage(srw * 8, srh * 8)
+
+    let n = 0
     dfile.regionalAction(srx, sry, srw, srh, (c) => {
-        this.copyBMap.copy(dfile.char(c), 0, 0, 8, 8, (n % srw) * 16, (int)(n / srw) * 16, 16, 16)
+        this.copyBMap.copy(dfile.char(c), 0, 0, 8, 8, (n % srw) * 8, (int)(n / srw) * 8, 8, 8)
         this.copyA[n++] = c
         return c
     })
@@ -280,7 +282,7 @@ const PasteMode = function (srx, sry, srw, srh) {
 PasteMode.prototype = Object.create(Mode.prototype)
 
 PasteMode.prototype.draw = function () {
-    image(this.copyBMap, this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y)
+    image(this.copyBMap, this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.copyBMap.width * 2, this.copyBMap.height * 2)
     rect(this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.selrectw * 16, this.selrecth * 16)
 
     this.showHelp()
