@@ -6,9 +6,10 @@ var imgGcursor;
 
 var dfilePanel;
 
-var allButtons = [];
+var globalButtons = [];
+var modalButtons = [];
 
-var mode = 0;
+var mode;
 var plotting = false;
 
 var selectedChr = 0;
@@ -45,17 +46,18 @@ function setup() {
 
   dfilePanel = new DFilePanel(8, 8, 512, 384);
 
-  allButtons = [
+  globalButtons = [
     dfilePanel,
-    new ModeButton(24, 400),
-    new TextButton("CLS", 8 * 16 + 24, 400, () => { dfile.cls() }),
-    new TextButton("SAVE", 12 * 16 + 24, 400, () => { dfile.save() }),
-    new TextButton("LOAD", 17 * 16 + 24, 400, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
-    new TextButton("FILL", 22 * 16 + 24, 400, () => { if (mode == 0) rgnFill() })
-  ];
+    new TextButton("CLS", 24, 400, () => { dfile.cls() }),
+    new TextButton("SAVE", 4 * 16 + 24, 400, () => { dfile.save() }),
+    new TextButton("LOAD", 9 * 16 + 24, 400, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
+  ]
+
   for (let i = 0; i < 128; i++) {
-    allButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
+    globalButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
   }
+
+  mode = new LMode();
 }
 
 function drawZeddyText(text, x, y, isInverse) {
@@ -72,50 +74,48 @@ function draw() {
   noStroke();
 
   tellButtons((x) => { x.draw() });
-
-  if (!plotting) {
-    let img = mode == 0 ? imgLcursor : imgGcursor;
-    if ((millis() & 512) == 0) image(img, dfile.cx * 16 + dfilePanel.x, dfile.cy * 16 + dfilePanel.y, 16, 16);
-  }
-}
-
-function rgnFill() {
-  dfile.fillrgn(dfilePanel.selrectx, dfilePanel.selrecty, dfilePanel.selrectw, dfilePanel.selrecth, selectedChr)
-}
-
-function fillrgn(rcy, c) {
-  dfile.fillrgn(rcy.x, rcy.y, rcy.w, rcy.h, c)
+  mode.draw();
 }
 
 function copyrgn(rcy) {
   this.copyM = new ArrayBuffer(rcy.w * rcy.h);
   this.copyA = new Uint8Array(this.copyM);
+  this.copyBMap = createImage(w * 16, h * 16)
   for (let b = 0, yy = rcy.y; yy < rcy.y + rcy.h; ++yy) {
     for (let xx = rcy.x; xx < rcy.x + rcy.w; ++xx) {
-      this.copyA[b++] = dfile.getCharAt(xx, yy);
+      let cc = dfile.getCharAt(xx, yy)
+      this.copyA[b++] = cc
+      this.copyBMap.copy(dfile.char(cc), 0, 0, 8, 8, xx * 16, yy * 16, 16, 16);
     }
+  }
+
+  function paste(rcy) {
+    for (let b = 0, yy = rcy.y; yy < rcy.y + rcy.h; ++yy) {
+      for (let xx = rcy.x; xx < rcy.x + rcy.w; ++xx) {
+        dfile.setCharAt(xx, yy, this.copyA[b++])
+      }
+    }
+  }
+
+  function draw(x, y) {
+    image(this.copyBMap, x * 16 + dfile.x, y * 16 + dfile.y)
   }
 }
 
-function pastergn(rcy) {
-  for (let b = 0, yy = rcy.y; yy < rcy.y + rcy.h; ++yy) {
-    for (let xx = rcy.x; xx < rcy.x + rcy.w; ++xx) {
-      dfile.setCharAt(xx, yy, this.copyA[b++])
-    }
-  }
-}
+var clipboard;
 
 function cpr(udp) {
-  if (plotting && keyIsDown(SHIFT)) {
-    let cr = dfilePanel.selectionRect()
-    this.copyrgn(cr)
-    this.fillrgn(cr, 0)
-    udp(cr)
-    this.pastergn(cr)
-  }
+  // let cr = dfilePanel.selectionRect()
+  // clipboard = this.copyrgn(cr)
+  // this.fillrgn(cr, 0)
+  // udp(cr)
+  // clipboard.paste(cr)
+  // clipboard = null
 }
 
 function keyPressed() {
+  mode.keyPressed()
+  /*
   if (keyCode === BACKSPACE) {
     dfile.cursorLeft();
     dfile.rst10_ascii(" ");
@@ -157,36 +157,45 @@ function keyPressed() {
       dfile.cursorRight()
     }
   }
+  */
 }
 
 function keyTyped() {
-  print(key, typeof key);
-  let zxcc = dfile.a2z(key);
-  dfile.rst10_zeddy(zxcc + mode);
+  mode.keyTyped()
 }
 
 function tellButtons(thingToDo) {
-  for (let x of allButtons) {
-    thingToDo(x);
+  for (let x of globalButtons) {
+    thingToDo(x)
+  }
+  for (let x of modalButtons) {
+    thingToDo(x)
   }
 }
 
 function mouseMoved() {
-  tellButtons((x) => { x.mouseMoved() });
+  tellButtons((x) => { x.mouseMoved() })
 }
 
 function mouseClicked() {
-  tellButtons((x) => { x.mouseClicked() });
+  tellButtons((x) => { x.mouseClicked() })
 }
 
 function doubleClicked() {
-  tellButtons((x) => { x.doubleClicked() });
+  tellButtons((x) => { x.doubleClicked() })
+  mode.doubleClicked()
 }
 
 function mouseDragged() {
-  tellButtons((x) => { x.mouseDragged() });
+  tellButtons((x) => { x.mouseDragged() })
+  mode.mouseDragged()
 }
 
 function mousePressed() {
-  tellButtons((x) => { x.mousePressed() });
+  tellButtons((x) => { x.mousePressed() })
+  mode.mousePressed()
+}
+
+function mouseReleased() {
+  mode.mouseReleased()
 }
