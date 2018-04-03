@@ -11,6 +11,9 @@ Mode.prototype.draw = function () {
 Mode.prototype.doubleClicked = function () {
 }
 
+Mode.prototype.mouseMoved = function () {
+}
+
 Mode.prototype.mouseDragged = function () {
 }
 
@@ -144,9 +147,13 @@ PlotMode.prototype.mouseReleased = function () {
 const SelectMode = function () {
     Mode.call(this)
     modalButtons = [
-        new TextButton("FILL", 24, 440, () => { dfile.fillrgn(this.selrectx,this.selrecty,this.selrectw,this.selrecth,selectedChr) }),
-        new TextButton("COPY", 5*16 + 24, 440, () => {  }),
-        new TextButton("PASTE", 10*16 + 24, 440, () => {  })
+        new TextButton("FILL", 24, 440, () => {
+            dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (c) => selectedChr)
+        }),
+        new TextButton("INVERT", 5 * 16 + 24, 440, () => {
+            dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (c) => c ^ 128)
+        }),
+        new TextButton("COPY", 12 * 16 + 24, 440, () => { mode.end(); mode = new PasteMode(this.selrectx, this.selrecty, this.selrectw, this.selrecth) })
     ]
 
     this.dragStartX = (int)((mouseX - dfilePanel.x) / 16);
@@ -169,13 +176,20 @@ SelectMode.prototype.mouseDragged = function () {
 }
 
 SelectMode.prototype.draw = function () {
-    if (this.dragEndX != -1) {
-        noFill()
-        strokeWeight(1)
-        stroke((millis() & 512) == 512 ? color(200, 0, 0) : color(0, 200, 0))
+    if (this.dragEndX == -1) { return }
 
-        rect(this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.selrectw * 16, this.selrecth * 16)
-    }
+    noFill()
+    strokeWeight(1)
+    stroke((millis() & 512) == 512 ? color(200, 0, 0) : color(0, 200, 0))
+
+    rect(this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.selrectw * 16, this.selrecth * 16)
+}
+
+SelectMode.prototype.mousePressed = function () {
+    if (!dfilePanel.mouseWithin()) { return; }
+
+    mode.end()
+    mode = new LMode()
 }
 
 SelectMode.prototype.doubleClicked = function () {
@@ -186,4 +200,60 @@ SelectMode.prototype.doubleClicked = function () {
 
     mode.end()
     mode = new LMode()
+}
+
+// ----------------------------------------------------------------------------------------
+
+const PasteMode = function (srx, sry, srw, srh) {
+    Mode.call(this)
+
+    this.selrectx = srx
+    this.selrecty = sry
+    this.selrectw = srw
+    this.selrecth = srh
+
+    this.copyM = new ArrayBuffer(srw * srh);
+    this.copyA = new Uint8Array(this.copyM);
+    this.copyBMap = createImage(srw * 16, srh * 16)
+    let n = 0;
+    dfile.regionalAction(srx, sry, srw, srh, (c) => {
+        this.copyBMap.copy(dfile.char(c), 0, 0, 8, 8, (n % srw) * 16, (int)(n / srw) * 16, 16, 16)
+        this.copyA[n++] = c
+        return c
+    })
+
+    modalButtons.push(new TextButton("PASTE", 24, 440, () => {
+        let n = 0;
+        dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (c) => {
+            return this.copyA[n++]
+        })
+        mode.end()
+        mode = new LMode()
+    }))
+}
+
+PasteMode.prototype = Object.create(Mode.prototype)
+
+PasteMode.prototype.draw = function () {
+    image(this.copyBMap, this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y)
+    rect(this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.selrectw * 16, this.selrecth * 16)
+}
+
+PasteMode.prototype.mousePressed = function () {
+    if (!dfilePanel.mouseWithin()) { return; }
+
+    mode.end()
+    mode = new LMode()
+}
+
+PasteMode.prototype.keyPressed = function () {
+    if (keyCode === UP_ARROW) {
+        if (this.selrecty > 0) --this.selrecty;
+    } else if (keyCode === DOWN_ARROW) {
+        if (this.selrecty + this.selrecth < 24) ++this.selrecty;
+    } else if (keyCode === LEFT_ARROW) {
+        if (this.selrectx > 0) --this.selrectx;
+    } else if (keyCode === RIGHT_ARROW) {
+        if (this.selrectx + this.selrectw < 32) ++this.selrectx;
+    }
 }

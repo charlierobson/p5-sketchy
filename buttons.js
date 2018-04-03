@@ -122,7 +122,3 @@ DFilePanel.prototype.draw = function () {
     dfile.render(this.imgtarget);
     image(this.imgtarget, this.x, this.y, this.w, this.h);
 }
-
-DFilePanel.prototype.selectionRect = function () {
-    return new rect_t(this.selrectx, this.selrecty, this.selrectw, this.selrecth)
-}

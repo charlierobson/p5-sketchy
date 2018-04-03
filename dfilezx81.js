@@ -1,5 +1,4 @@
 function dfilezx81() {
-
     this.cx = 0;
     this.cy = 0;
 
@@ -17,10 +16,10 @@ function dfilezx81() {
         this.cy = 0
     }
 
-    this.fillrgn = function (x, y, w, h, c) {
+    this.regionalAction = function (x, y, w, h, fn) {
         for (let yy = y; yy < y + h; ++yy) {
             for (let xx = x; xx < x + w; ++xx) {
-                this.dfile[xx + yy * 32] = c;
+                this.dfile[xx + yy * 32] = fn(this.dfile[xx + yy * 32]);
             }
         }
     }
@@ -141,10 +140,10 @@ function dfilezx81() {
     }
 
     this.render = function (target) {
-        this.bg.fill(220);
+        this.bg.fill(230);
         this.bg.noStroke();
         this.bg.noSmooth();
-        this.bg.background(240);
+        this.bg.background(242);
         for (let y = 0; y < 24; ++y) {
             let cc = (y & 1) == 0;
             for (let x = 0; x < 32; ++x) {
