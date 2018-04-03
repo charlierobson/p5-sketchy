@@ -48,9 +48,9 @@ const TextMode = function (code) {
     Mode.call(this)
 
     this.help = [
-        "Type to insert alphanumeric characters at cursor",
-        "Double click in screen area or use cursor keys to move cursor position",
-        "Double click character in character set to insert that character at cursor position"
+        "Type to insert alphanumeric characters at cursor position. Backspace deletes.",
+        "Double click in screen area or use cursor keys to update cursor position.",
+        "Double click character in character set to insert that character at cursor position."
     ]
 
     let cc = dfile.a2z(code)
@@ -97,8 +97,8 @@ const LMode = function () {
 
     modalButtons.push(new TextButton("MODE:L", 24, 440, () => { mode.end(); mode = new GMode() }));
 
-    this.help.push("Drag mouse to select region")
-    this.help.push("Click MODE button to change to [G] mode")
+    this.help.push("Drag mouse to select region.")
+    this.help.push("Click MODE button to change to [G] mode.")
 }
 
 LMode.prototype = Object.create(TextMode.prototype)
@@ -122,8 +122,8 @@ const GMode = function () {
 
     modalButtons.push(new TextButton("MODE:G", 24, 440, () => { mode.end(); mode = new LMode() }));
 
-    this.help.push("Drag mouse to PLOT pixels. Starting pixel under cursor determines whether you draw or undraw")
-    this.help.push("Click MODE button to change to [L] mode")
+    this.help.push("Drag mouse to PLOT pixels. Pixel under cursor at start determines whether you plot or unplot.")
+    this.help.push("Click MODE button to change to [L] mode.")
 
     this.plotMode = 1
 }
@@ -191,10 +191,10 @@ const SelectMode = function () {
     this.dragEndX = -1
 
     this.help = [
-        "Click in screen area to deselect region and return to [L] mode",
-        "Click FILL to fill the region with the selected character in the character set",
-        "Click INVERT to invert the region",
-        "Click COPY to copy the characters in the region",
+        "Click in screen area to deselect region and return to [L] mode.",
+        "Click FILL to fill the region with the selected character in the character set.",
+        "Click INVERT to invert the region.",
+        "Click COPY to copy the characters in the region.",
     ]
 }
 
@@ -271,9 +271,9 @@ const PasteMode = function (srx, sry, srw, srh) {
     }))
 
     this.help = [
-        "Click in screen area to deselect region and return to [L] mode",
-        "Click PASTE to update the screen with the copied region",
-        "Change the paste position with the cursor keys"
+        "Click in screen area to deselect region and return to [L] mode.",
+        "Click PASTE to update the screen with the copied region.",
+        "Change the paste position with the cursor keys."
     ]    
 }
 
