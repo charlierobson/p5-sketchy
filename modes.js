@@ -1,8 +1,20 @@
 const Mode = function () {
     modalButtons = []
+    this.acceptsCharacters = false
+    this.help = []
 }
 
 Mode.prototype.end = function () {
+}
+
+Mode.prototype.showHelp = function () {
+    fill(0)
+    noStroke(0)
+    let y = 480
+    for (let s of this.help) {
+        text(s, 24, y)
+        y += 20
+    }
 }
 
 Mode.prototype.draw = function () {
@@ -29,15 +41,22 @@ Mode.prototype.keyPressed = function () {
 Mode.prototype.keyTyped = function () {
 }
 
-
 // ----------------------------------------------------------------------------------------
 
 
 const TextMode = function (code) {
     Mode.call(this)
 
+    this.help = [
+        "Type to insert alphanumeric characters at cursor",
+        "Double click in screen area or use cursor keys to move cursor position",
+        "Double click character in character set to insert that character at cursor position"
+    ]
+
     let cc = dfile.a2z(code)
     this.cursor = dfile.char(cc + 128)
+
+    this.acceptsCharacters = true
 }
 
 TextMode.prototype = Object.create(Mode.prototype)
@@ -51,6 +70,8 @@ TextMode.prototype.doubleClicked = function () {
 
 TextMode.prototype.draw = function () {
     if ((millis() & 512) == 0) image(this.cursor, dfile.cx * 16 + dfilePanel.x, dfile.cy * 16 + dfilePanel.y, 16, 16);
+
+    this.showHelp()
 }
 
 TextMode.prototype.keyPressed = function () {
@@ -73,7 +94,11 @@ TextMode.prototype.keyPressed = function () {
 
 const LMode = function () {
     TextMode.call(this, "L")
+
     modalButtons.push(new TextButton("MODE:L", 24, 440, () => { mode.end(); mode = new GMode() }));
+
+    this.help.push("Drag mouse to select region")
+    this.help.push("Click MODE button to change to [G] mode")
 }
 
 LMode.prototype = Object.create(TextMode.prototype)
@@ -94,8 +119,13 @@ LMode.prototype.mouseDragged = function () {
 
 const GMode = function () {
     TextMode.call(this, "G")
-    this.plotMode = 1
+
     modalButtons.push(new TextButton("MODE:G", 24, 440, () => { mode.end(); mode = new LMode() }));
+
+    this.help.push("Drag mouse to PLOT pixels. Starting pixel under cursor determines whether you draw or undraw")
+    this.help.push("Click MODE button to change to [L] mode")
+
+    this.plotMode = 1
 }
 
 GMode.prototype = Object.create(TextMode.prototype)
@@ -159,6 +189,13 @@ const SelectMode = function () {
     this.dragStartX = (int)((mouseX - dfilePanel.x) / 16);
     this.dragStartY = (int)((mouseY - dfilePanel.y) / 16);
     this.dragEndX = -1
+
+    this.help = [
+        "Click in screen area to deselect region and return to [L] mode",
+        "Click FILL to fill the region with the selected character in the character set",
+        "Click INVERT to invert the region",
+        "Click COPY to copy the characters in the region",
+    ]
 }
 
 SelectMode.prototype = Object.create(Mode.prototype)
@@ -183,6 +220,8 @@ SelectMode.prototype.draw = function () {
     stroke((millis() & 512) == 512 ? color(200, 0, 0) : color(0, 200, 0))
 
     rect(this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.selrectw * 16, this.selrecth * 16)
+
+    this.showHelp()
 }
 
 SelectMode.prototype.mousePressed = function () {
@@ -230,6 +269,12 @@ const PasteMode = function (srx, sry, srw, srh) {
         mode.end()
         mode = new LMode()
     }))
+
+    this.help = [
+        "Click in screen area to deselect region and return to [L] mode",
+        "Click PASTE to update the screen with the copied region",
+        "Change the paste position with the cursor keys"
+    ]    
 }
 
 PasteMode.prototype = Object.create(Mode.prototype)
@@ -237,6 +282,8 @@ PasteMode.prototype = Object.create(Mode.prototype)
 PasteMode.prototype.draw = function () {
     image(this.copyBMap, this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y)
     rect(this.selrectx * 16 + dfilePanel.x, this.selrecty * 16 + dfilePanel.y, this.selrectw * 16, this.selrecth * 16)
+
+    this.showHelp()
 }
 
 PasteMode.prototype.mousePressed = function () {

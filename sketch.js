@@ -40,9 +40,9 @@ function setup() {
 
   globalButtons = [
     dfilePanel,
-    new TextButton("CLS", 24, 400, () => { dfile.cls() }),
-    new TextButton("SAVE", 4 * 16 + 24, 400, () => { dfile.save() }),
-    new TextButton("LOAD", 9 * 16 + 24, 400, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
+    new TextButton("CLS", 24, 408, () => { dfile.cls() }),
+    new TextButton("SAVE", 4 * 16 + 24, 408, () => { dfile.save() }),
+    new TextButton("LOAD", 9 * 16 + 24, 408, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
   ]
 
   for (let i = 0; i < 128; i++) {

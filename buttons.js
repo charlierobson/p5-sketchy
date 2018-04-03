@@ -102,10 +102,8 @@ CharButton.prototype.mouseClicked = function () {
 }
 
 CharButton.prototype.doubleClicked = function () {
-    if (this.state == 1) {
-        if (!plotting) {
-            dfile.rst10_zeddy(this.chr)
-        }
+    if (this.state == 1 && mode.acceptsCharacters) {
+        dfile.rst10_zeddy(this.chr)
     }
 }
 
