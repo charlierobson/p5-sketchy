@@ -100,7 +100,7 @@ const LMode = function () {
     modalButtons.push(new TextButton("MODE:L", 24, 440, () => { mode.end(); mode = new GMode() }));
 
     this.help.push("Drag mouse to select region.")
-    this.help.push("Click MODE button to change to [G] mode.")
+    this.help.push("Click MODE button for [G] mode where you can type inverse characters and plot.")
 }
 
 LMode.prototype = Object.create(TextMode.prototype)
@@ -125,7 +125,7 @@ const GMode = function () {
     modalButtons.push(new TextButton("MODE:G", 24, 440, () => { mode.end(); mode = new LMode() }));
 
     this.help.push("Drag mouse to PLOT pixels. Pixel under cursor at start determines whether you plot or unplot.")
-    this.help.push("Click MODE button to change to [L] mode.")
+    this.help.push("Click MODE button for [L] mode where characters are normal and you can select regions.")
 
     this.plotMode = 1
 }
