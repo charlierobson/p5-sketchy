@@ -49,7 +49,7 @@ function setup() {
 
   globalButtons = [
     dfilePanel,
-    new TextButton("CLS", 24, 408, () => { dfile.cls(); dfile.snapUndo() }),
+    new TextButton("CLS", 24, 408, () => { dfile.cls(); snapUndo() }),
     new TextButton("SAVE", 4 * 16 + 24, 408, () => { dfile.save() }),
     new TextButton("LOAD", 9 * 16 + 24, 408, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
     new TextButton("UNDO", 14 * 16 + 24, 408, () => { undo() }, () => undoLevel != 0),
@@ -73,13 +73,13 @@ function resetUndo () {
 }
 
 function snapUndo () {
-  if (dfile.changed) {
-    undoBuffer = undoBuffer.slice(0, undoLevel + 1)
-    undoBuffer.push(dfile.buffer())
-    undoLevel = undoBuffer.length - 1
+  if (!dfile.changed) return
 
-    dfile.changed = false
-  }
+  undoBuffer = undoBuffer.slice(0, undoLevel + 1)
+  undoBuffer.push(dfile.buffer())
+  undoLevel = undoBuffer.length - 1
+
+  dfile.changed = false
 }
 
 function undo () {
@@ -87,6 +87,7 @@ function undo () {
 
   --undoLevel
   dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n])
+  dfile.changed = false
 }
 
 function redo () {
@@ -94,6 +95,7 @@ function redo () {
 
   ++undoLevel
   dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n])
+  dfile.changed = false
 }
 
 function drawZeddyText(text, x, y, isInverse) {
@@ -111,9 +113,10 @@ function draw() {
 
   tellButtons((x) => { x.draw() })
   mode.draw()
-  if (traceimg != null) {
-    image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
-  }
+
+  // if (traceimg != null) {
+  //   image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
+  // }
 }
 
 function tellButtons(thingToDo) {

@@ -24,16 +24,13 @@ function dfilezx81() {
     }
 
     this.regionalAction = function (x, y, w, h, fn) {
-        let before = this.dfile.slice(0)
-
         for (let n =0, yy = y; yy < y + h; ++yy) {
             for (let xx = x; xx < x + w; ++xx) {
-                this.dfile[xx + yy * 32] = fn(n++, this.dfile[xx + yy * 32]);
+                let b = this.dfile[xx + yy * 32]
+                let c = fn(n++, b)
+                this.dfile[xx + yy * 32] = c
+                this.changed |= b != c
             }
-        }
-
-        for (let i = 0; i < dfile.length; ++i) {
-            this.changed |= dfile[i] != before[i];
         }
     }
 

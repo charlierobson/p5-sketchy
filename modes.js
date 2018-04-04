@@ -267,7 +267,6 @@ const PasteMode = function (srx, sry, srw, srh) {
     })
 
     modalButtons.push(new TextButton("PASTE", 24, 440, () => {
-        let n = 0;
         dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (n, c) => this.copyA[n])
         mode.end()
         mode = new LMode()
