@@ -51,7 +51,7 @@ const TextMode = function (code) {
     this.help = [
         "Type to insert alphanumeric characters at cursor position. Backspace deletes.",
         "Double click in screen area or use cursor keys to update cursor position.",
-        "Double click character in character set to insert that character at cursor position."
+        "Click a character in the character set to insert it at cursor position."
     ]
 
     let cc = dfile.a2z(code)
@@ -195,10 +195,10 @@ const SelectMode = function () {
     this.dragEndX = -1
 
     this.help = [
-        "Click in screen area to deselect region and return to [L] mode.",
-        "Click FILL to fill the region with the selected character in the character set.",
+        "Click in the screen area to deselect region and return to [L] mode.",
+        "Click FILL after selecting a character to use.",
         "Click INVERT to invert the region.",
-        "Click COPY to copy the characters in the region.",
+        "Click COPY to copy the content within the region.",
     ]
 }
 
@@ -273,7 +273,7 @@ const PasteMode = function (srx, sry, srw, srh) {
     }))
 
     this.help = [
-        "Click in screen area to deselect region and return to [L] mode.",
+        "Click in the screen area to deselect region and return to [L] mode.",
         "Click PASTE to update the screen with the copied region.",
         "Change the paste position with the cursor keys."
     ]    
