@@ -5,6 +5,7 @@ const Mode = function () {
 }
 
 Mode.prototype.end = function () {
+    snapUndo();
 }
 
 Mode.prototype.showHelp = function () {
@@ -66,6 +67,7 @@ TextMode.prototype.doubleClicked = function () {
 
     dfile.cx = (int)((mouseX - dfilePanel.x) / 16);
     dfile.cy = (int)((mouseY - dfilePanel.y) / 16);
+    snapUndo();
 }
 
 TextMode.prototype.draw = function () {
@@ -178,10 +180,12 @@ const SelectMode = function () {
     Mode.call(this)
     modalButtons = [
         new TextButton("FILL", 24, 440, () => {
-            dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (c) => selectedChr)
+            dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (n, c) => selectedChr)
+            snapUndo()
         }),
         new TextButton("INVERT", 5 * 16 + 24, 440, () => {
-            dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (c) => c ^ 128)
+            dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (n, c) => c ^ 128)
+            snapUndo()
         }),
         new TextButton("COPY", 12 * 16 + 24, 440, () => { mode.end(); mode = new PasteMode(this.selrectx, this.selrecty, this.selrectw, this.selrecth) })
     ]
@@ -256,18 +260,15 @@ const PasteMode = function (srx, sry, srw, srh) {
     this.copyA = new Uint8Array(this.copyM);
     this.copyBMap = createImage(srw * 8, srh * 8)
 
-    let n = 0
-    dfile.regionalAction(srx, sry, srw, srh, (c) => {
+    dfile.regionalAction(srx, sry, srw, srh, (n, c) => {
         this.copyBMap.copy(dfile.char(c), 0, 0, 8, 8, (n % srw) * 8, (int)(n / srw) * 8, 8, 8)
-        this.copyA[n++] = c
+        this.copyA[n] = c
         return c
     })
 
     modalButtons.push(new TextButton("PASTE", 24, 440, () => {
         let n = 0;
-        dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (c) => {
-            return this.copyA[n++]
-        })
+        dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (n, c) => this.copyA[n])
         mode.end()
         mode = new LMode()
     }))

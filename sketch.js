@@ -1,12 +1,15 @@
-var dfile;
-var dfilePanel;
+var dfile
+var dfilePanel
+var mode
+var modalButtons = []
+var globalButtons = []
 
-var mode;
+var undoBuffer = []
+var undoLevel = 0
 
-var modalButtons = [];
-var globalButtons = [];
+var selectedChr = 0
 
-var selectedChr = 0;
+var traceimg = null
 
 function rect_t(x, y, w, h) {
   this.x = x
@@ -26,6 +29,8 @@ function filedropped(dropped) {
     if (!dfile.load(strings)) {
       dfile.printat(1, 1, "INVALID FILE")
     }
+  } else if (dropped.type === 'image') {
+    traceimg = createImg(dropped.data).hide();
   }
 }
 
@@ -38,18 +43,50 @@ function setup() {
 
   dfilePanel = new DFilePanel(8, 8, 512, 384);
 
+  undoBuffer.push(dfile.buffer())
+  undoLevel = 0
+
   globalButtons = [
     dfilePanel,
     new TextButton("CLS", 24, 408, () => { dfile.cls() }),
     new TextButton("SAVE", 4 * 16 + 24, 408, () => { dfile.save() }),
     new TextButton("LOAD", 9 * 16 + 24, 408, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
+    new TextButton("UNDO", 14 * 16 + 24, 408, () => { undo() }, () => undoLevel != 0),
+    new TextButton("REDO", 19 * 16 + 24, 408, () => { redo() }, () => undoLevel != undoBuffer.length-1),
   ]
 
   for (let i = 0; i < 128; i++) {
     globalButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
   }
 
+  globalButtons.push(new CharButtonToggle(6, 540 + 7 * 24, 408, true, (s)=>{dfile.checks = s}))
+
   mode = new LMode();
+}
+
+function snapUndo () {
+  if (dfile.changed) {
+    console.log("snap!")
+    undoBuffer = undoBuffer.slice(0, undoLevel + 1)
+    undoBuffer.push(dfile.buffer())
+    undoLevel = undoBuffer.length - 1
+
+    dfile.changed = false
+  }
+}
+
+function undo () {
+  if (undoLevel == 0) return
+
+  --undoLevel
+  dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n])
+}
+
+function redo () {
+  if (undoLevel == undoBuffer.length - 1) return
+
+  ++undoLevel
+  dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n])
 }
 
 function drawZeddyText(text, x, y, isInverse) {
@@ -60,13 +97,16 @@ function drawZeddyText(text, x, y, isInverse) {
 }
 
 function draw() {
-  background(128);
+  background(128)
 
-  fill(0);
-  noStroke();
+  fill(0)
+  noStroke()
 
-  tellButtons((x) => { x.draw() });
-  mode.draw();
+  tellButtons((x) => { x.draw() })
+  mode.draw()
+  if (traceimg != null) {
+    image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
+  }
 }
 
 function tellButtons(thingToDo) {

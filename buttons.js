@@ -57,17 +57,18 @@ Buttonx.prototype.doubleClicked = function () {
 
 // ----------------------------------------------------------------------------------------
 
-const TextButton = function (text, x, y, thingToDo) {
+const TextButton = function (text, x, y, thingToDo, enableTestFn = function(){return true}) {
     Buttonx.call(this, x, y, text.length * 16, 16)
     this.text = text
     this.thingToDo = thingToDo
+    this.enabled = enableTestFn
 }
 
 TextButton.prototype = Object.create(Buttonx.prototype)
 
 TextButton.prototype.draw = function () {
     drawZeddyText(this.text, this.x, this.y);
-    if (this.state == 1) {
+    if (this.state == 1 && this.enabled()) {
         this.showHilite();
     }
 }
@@ -104,6 +105,31 @@ CharButton.prototype.mouseClicked = function () {
 CharButton.prototype.doubleClicked = function () {
     if (this.state == 1 && mode.acceptsCharacters) {
         dfile.rst10_zeddy(this.chr)
+    }
+}
+
+// ----------------------------------------------------------------------------------------
+
+const CharButtonToggle = function (chr, x, y, initialState, action) {
+    Buttonx.call(this, x, y, 16, 16)
+    this.chr = (chr & 63) + (chr > 63 ? 128 : 0)
+    this.action = action
+    this.selected = initialState
+}
+
+CharButtonToggle.prototype = Object.create(Buttonx.prototype);
+
+CharButtonToggle.prototype.draw = function () {
+    image(dfile.char(this.chr), this.x, this.y, 16, 16);
+    if (this.state == 1 || this.selected) {
+        this.showHilite();
+    }
+}
+
+CharButtonToggle.prototype.mouseClicked = function () {
+    if (this.state == 1) {
+        this.selected = !this.selected
+        this.action(this.selected)
     }
 }
 
