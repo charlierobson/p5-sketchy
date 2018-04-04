@@ -28,6 +28,8 @@ function filedropped(dropped) {
     let strings = dropped.data
     if (!dfile.load(strings)) {
       dfile.printat(1, 1, "INVALID FILE")
+    } else {
+      resetUndo(); 
     }
   } else if (dropped.type === 'image') {
     traceimg = createImg(dropped.data).hide();
@@ -43,12 +45,11 @@ function setup() {
 
   dfilePanel = new DFilePanel(8, 8, 512, 384);
 
-  undoBuffer.push(dfile.buffer())
-  undoLevel = 0
+  resetUndo()
 
   globalButtons = [
     dfilePanel,
-    new TextButton("CLS", 24, 408, () => { dfile.cls() }),
+    new TextButton("CLS", 24, 408, () => { dfile.cls(); dfile.snapUndo() }),
     new TextButton("SAVE", 4 * 16 + 24, 408, () => { dfile.save() }),
     new TextButton("LOAD", 9 * 16 + 24, 408, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
     new TextButton("UNDO", 14 * 16 + 24, 408, () => { undo() }, () => undoLevel != 0),
@@ -64,9 +65,15 @@ function setup() {
   mode = new LMode();
 }
 
+function resetUndo () {
+  undoBuffer = []
+  undoBuffer.push(dfile.buffer())
+  undoLevel = undoBuffer.length - 1
+  dfile.changed = false
+}
+
 function snapUndo () {
   if (dfile.changed) {
-    console.log("snap!")
     undoBuffer = undoBuffer.slice(0, undoLevel + 1)
     undoBuffer.push(dfile.buffer())
     undoLevel = undoBuffer.length - 1

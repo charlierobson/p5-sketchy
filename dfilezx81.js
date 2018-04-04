@@ -18,16 +18,22 @@ function dfilezx81() {
     }
 
     this.cls = function () {
-        this.dfile.fill(0);
+        this.regionalAction(0, 0, 32, 24, (n,c) => 0)
         this.cx = 0
         this.cy = 0
     }
 
     this.regionalAction = function (x, y, w, h, fn) {
+        let before = this.dfile.slice(0)
+
         for (let n =0, yy = y; yy < y + h; ++yy) {
             for (let xx = x; xx < x + w; ++xx) {
                 this.dfile[xx + yy * 32] = fn(n++, this.dfile[xx + yy * 32]);
             }
+        }
+
+        for (let i = 0; i < dfile.length; ++i) {
+            this.changed |= dfile[i] != before[i];
         }
     }
 
@@ -209,6 +215,7 @@ function dfilezx81() {
             for (let i = 0; i < 768; ++i) {
                 this.dfile[i] = parseInt(result[i].substring(1, 3), 16)
             }
+            this.changed = true;
             return true;
         }
         return false;
