@@ -1,6 +1,9 @@
 function dfilezx81() {
-    this.cx = 0;
-    this.cy = 0;
+    this.cx = 0
+    this.cy = 0
+    this.checks = true
+
+    this.changed = false
 
     this.preload = function () {
         this.font = loadImage('data/zx81.png');
@@ -10,6 +13,10 @@ function dfilezx81() {
         this.dfile.fill(0);
     }
 
+    this.buffer = function () {
+        return this.dfile.slice(0)
+    }
+
     this.cls = function () {
         this.dfile.fill(0);
         this.cx = 0
@@ -17,9 +24,9 @@ function dfilezx81() {
     }
 
     this.regionalAction = function (x, y, w, h, fn) {
-        for (let yy = y; yy < y + h; ++yy) {
+        for (let n =0, yy = y; yy < y + h; ++yy) {
             for (let xx = x; xx < x + w; ++xx) {
-                this.dfile[xx + yy * 32] = fn(this.dfile[xx + yy * 32]);
+                this.dfile[xx + yy * 32] = fn(n++, this.dfile[xx + yy * 32]);
             }
         }
     }
@@ -29,6 +36,7 @@ function dfilezx81() {
     }
 
     this.setCharAt = function(x, y, c) {
+        this.changed |= this.dfile[x + 32 * y] != c
         this.dfile[x + 32 * y] = c
     }
 
@@ -80,12 +88,12 @@ function dfilezx81() {
     }
 
     this.rst10_ascii = function (cc) {
-        this.dfile[this.cx + 32 * this.cy] = this.a2z(cc);
+        this.setCharAt(this.cx, this.cy, this.a2z(cc));
         this.cursorRight();
     }
 
     this.rst10_zeddy = function (cc) {
-        this.dfile[this.cx + 32 * this.cy] = cc;
+        this.setCharAt(this.cx, this.cy, cc);
         this.cursorRight();
     }
 
@@ -117,6 +125,7 @@ function dfilezx81() {
             c ^= 0x8f;
         }
 
+        this.changed |= this.dfile[i] != c
         this.dfile[i] = c;
     }
 
@@ -140,10 +149,10 @@ function dfilezx81() {
     }
 
     this.render = function (target) {
-        this.bg.fill(230);
+        this.bg.fill(this.checks ? 230 : 255);
         this.bg.noStroke();
         this.bg.noSmooth();
-        this.bg.background(242);
+        this.bg.background(this.checks ? 242 : 255);
         for (let y = 0; y < 24; ++y) {
             let cc = (y & 1) == 0;
             for (let x = 0; x < 32; ++x) {
