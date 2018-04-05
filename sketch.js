@@ -11,6 +11,8 @@ var selectedChr = 0
 
 var traceimg = null
 
+var devMode;
+
 function rect_t(x, y, w, h) {
   this.x = x
   this.y = y,
@@ -46,6 +48,9 @@ function setup() {
   dfilePanel = new DFilePanel(8, 8, 512, 384);
 
   resetUndo()
+
+  let params = getURLParams();
+  devMode = params.dev != undefined;
 
   globalButtons = [
     dfilePanel,
@@ -114,6 +119,16 @@ function draw() {
   tellButtons((x) => { x.draw() })
   mode.draw()
 
+  if (devMode) {
+    let o = 1 + dfile.cx + 33 * dfile.cy;
+
+    fill(0)
+    noStroke()
+    text('C:'+hex(selectedChr, 2), 540, 408)
+    text('X:'+hex(dfile.cx, 2), 570, 408)
+    text('Y:'+hex(dfile.cy, 2), 600, 408)
+    text('+'+hex(o, 3), 630, 408)
+  }
   // if (traceimg != null) {
   //   image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
   // }
