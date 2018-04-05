@@ -121,14 +121,16 @@ function draw() {
 
   if (devMode) {
     let o = 1 + dfile.cx + 33 * dfile.cy;
-
     fill(0)
     noStroke()
     text('C:'+hex(selectedChr, 2), 540, 408)
     text('X:'+hex(dfile.cx, 2), 570, 408)
     text('Y:'+hex(dfile.cy, 2), 600, 408)
     text('+'+hex(o, 3), 630, 408)
+
+    text('C:'+hex(dfile.getCharAt(dfile.cx, dfile.cy), 2), 540, 428)
   }
+
   // if (traceimg != null) {
   //   image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
   // }

@@ -99,9 +99,12 @@ CharButton.prototype.draw = function () {
 CharButton.prototype.mouseClicked = function () {
     if (this.state == 1) {
         selectedChr = this.chr
-        if (mode.acceptsCharacters) {
-            dfile.rst10_zeddy(this.chr)
-        }
+    }
+}
+
+CharButton.prototype.doubleClicked = function () {
+    if (this.state == 1 && mode.acceptsCharacters) {
+        dfile.rst10_zeddy(this.chr)
     }
 }
 
