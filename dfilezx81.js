@@ -193,6 +193,9 @@ function dfilezx81() {
         let strings = []
         for (let y = 0, n = 0; y < 24; ++y) {
             let s = "\t.byte\t"
+            if (config['usenl']) {
+                s += "$76,";
+            }
             for (let x = 0; x < 32; ++x) {
                 s += "$" + ("00" + this.dfile[n++].toString(16)).substr(-2)
                 if (x != 31) {
@@ -201,16 +204,22 @@ function dfilezx81() {
             }
             strings.push(s);
         }
-        saveStrings(strings, "screen.asm")
+        if (config['usenl']) {
+            strings.push("\t.byte\t$76");
+        }
+        saveStrings(strings, "sketchy-screen" + (config.usenl ? "-nl" : ""))
     }
 
     this.load = function (input) {
-        this.cls()
-        let regex = /\$[0-9A-Fa-f]{2}/g
+        this.cls();
+        let regex = /\$[0-9A-Fa-f]{2}/g;
         let result = input.match(regex);
-        if (result != null && result.length == 768) {
-            for (let i = 0; i < 768; ++i) {
-                this.dfile[i] = parseInt(result[i].substring(1, 3), 16)
+        if (result != null && (result.length == 768 || result.length == 768+25)) {
+            for (let n = 0, i = 0; i < result.length; ++i) {
+                let v = parseInt(result[i].substring(1, 3),16);
+                if (v != 0x76) {
+                    this.dfile[n++] = v;
+                }
             }
             this.changed = true;
             return true;

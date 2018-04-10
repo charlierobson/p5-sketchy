@@ -1,42 +1,43 @@
-var dfile
-var dfilePanel
-var mode
-var modalButtons = []
-var globalButtons = []
+var dfile;
+var dfilePanel;
+var mode;
+var modalButtons = [];
+var globalButtons = [];
 
-var undoBuffer = []
-var undoLevel = 0
+var undoBuffer = [];
+var undoLevel = 0;
 
-var selectedChr = 0
+var selectedChr = 0;
 
-var traceimg = null
+var traceimg = null;
 
-var devMode;
+var config = new Object();
+
 
 function rect_t(x, y, w, h) {
   this.x = x
   this.y = y,
   this.w = w,
   this.h = h
-}
+};
 
 function preload() {
   dfile = new dfilezx81();
   dfile.preload();
-}
+};
 
 function filedropped(dropped) {
   if (dropped.type === 'text') {
-    let strings = dropped.data
+    let strings = dropped.data;
     if (!dfile.load(strings)) {
-      dfile.printat(1, 1, "INVALID FILE")
+      dfile.printat(1, 1, "INVALID FILE");
     } else {
       resetUndo(); 
     }
   } else if (dropped.type === 'image') {
     traceimg = createImg(dropped.data).hide();
   }
-}
+};
 
 function setup() {
   let c = createCanvas(740, 600);
@@ -50,7 +51,16 @@ function setup() {
   resetUndo()
 
   let params = getURLParams();
-  devMode = params.dev != undefined;
+
+  if (params.dev != undefined) {
+    config['dev'] = params.dev === "true";
+  }
+  else config['dev'] = false;
+
+  if (params.usenl != undefined) {
+    config['usenl'] = params.usenl === "true";
+  }
+  else config['usenl'] = true;
 
   globalButtons = [
     dfilePanel,
@@ -62,64 +72,64 @@ function setup() {
   ]
 
   for (let i = 0; i < 128; i++) {
-    globalButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24))
+    globalButtons.push(new CharButton(i, 540 + (i & 7) * 24, 12 + (int)(i / 8) * 24));
   }
 
-  globalButtons.push(new CharButtonToggle(6, 540 + 7 * 24, 408, true, (s)=>{dfile.checks = s}))
+  globalButtons.push(new CharButtonToggle(6, 540 + 7 * 24, 408, true, (s)=>{dfile.checks = s}));
 
   mode = new LMode();
-}
+};
 
 function resetUndo () {
-  undoBuffer = []
-  undoBuffer.push(dfile.buffer())
-  undoLevel = undoBuffer.length - 1
-  dfile.changed = false
-}
+  undoBuffer = [];
+  undoBuffer.push(dfile.buffer());
+  undoLevel = undoBuffer.length - 1;
+  dfile.changed = false;
+};
 
 function snapUndo () {
-  if (!dfile.changed) return
+  if (!dfile.changed) return;
 
-  undoBuffer = undoBuffer.slice(0, undoLevel + 1)
-  undoBuffer.push(dfile.buffer())
-  undoLevel = undoBuffer.length - 1
+  undoBuffer = undoBuffer.slice(0, undoLevel + 1);
+  undoBuffer.push(dfile.buffer());
+  undoLevel = undoBuffer.length - 1;
 
-  dfile.changed = false
-}
+  dfile.changed = false;
+};
 
 function undo () {
-  if (undoLevel == 0) return
+  if (undoLevel == 0) return;
 
   --undoLevel
-  dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n])
-  dfile.changed = false
-}
+  dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n]);
+  dfile.changed = false;
+};
 
 function redo () {
-  if (undoLevel == undoBuffer.length - 1) return
+  if (undoLevel == undoBuffer.length - 1) return;
 
-  ++undoLevel
-  dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n])
-  dfile.changed = false
-}
+  ++undoLevel;
+  dfile.regionalAction(0, 0, 32, 24, (n, c) => undoBuffer[undoLevel][n]);
+  dfile.changed = false;
+};
 
 function drawZeddyText(text, x, y, isInverse) {
   for (let i = 0; i < text.length; i++) {
     image(dfile.char(dfile.a2z(text.charAt(i))), x, y, 16, 16);
     x += 16;
   }
-}
+};
 
 function draw() {
-  background(128)
+  background(128);
 
-  fill(0)
-  noStroke()
+  fill(0);
+  noStroke();
 
-  tellButtons((x) => { x.draw() })
-  mode.draw()
+  tellButtons((x) => { x.draw(); })
+  mode.draw();
 
-  if (devMode) {
+  if (config['dev']) {
     let o = 1 + dfile.cx + 33 * dfile.cy;
     fill(0)
     noStroke()
@@ -132,49 +142,56 @@ function draw() {
   // if (traceimg != null) {
   //   image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
   // }
-}
+};
 
 function tellButtons(thingToDo) {
   for (let x of globalButtons) {
-    thingToDo(x)
+    thingToDo(x);
   }
   for (let x of modalButtons) {
-    thingToDo(x)
+    thingToDo(x);
   }
 }
 
 function keyPressed() {
-  mode.keyPressed()
-}
+  if (mode != undefined)
+    mode.keyPressed();
+};
 
 function keyTyped() {
-  mode.keyTyped()
-}
+  if (mode != undefined)
+    mode.keyTyped();
+};
 
 function mouseClicked() {
-  tellButtons((x) => { x.mouseClicked() })
-}
+  tellButtons((x) => { x.mouseClicked(); })
+};
 
 function doubleClicked() {
-  tellButtons((x) => { x.doubleClicked() })
-  mode.doubleClicked()
-}
+  tellButtons((x) => { x.doubleClicked(); })
+  if (mode != undefined)
+    mode.doubleClicked();
+};
 
 function mouseMoved() {
-  tellButtons((x) => { x.mouseMoved() })
-  mode.mouseMoved()
+  tellButtons((x) => { x.mouseMoved(); })
+  if (mode != undefined)
+    mode.mouseMoved();
 }
 
 function mouseDragged() {
-  tellButtons((x) => { x.mouseDragged() })
-  mode.mouseDragged()
-}
+  tellButtons((x) => { x.mouseDragged(); })
+  if (mode != undefined)
+    mode.mouseDragged();
+};
 
 function mousePressed() {
-  tellButtons((x) => { x.mousePressed() })
-  mode.mousePressed()
-}
+  tellButtons((x) => { x.mousePressed(); })
+  if (mode != undefined)
+    mode.mousePressed();
+};
 
 function mouseReleased() {
-  mode.mouseReleased()
-}
+  if (mode != undefined)
+    mode.mouseReleased();
+};
