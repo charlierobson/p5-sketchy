@@ -135,14 +135,14 @@ function draw() {
 
   if (config['dev']) {
     let o = 1 + dfile.cx + 33 * dfile.cy;
-
-    fill(0);
-    noStroke();
-    text('C:'+hex(selectedChr, 2), 540, 408);
-    text('X:'+hex(dfile.cx, 2), 570, 408);
-    text('Y:'+hex(dfile.cy, 2), 600, 408);
-    text('+'+hex(o, 3), 630, 408);
+    fill(0)
+    noStroke()
+    text('Selected char: $'+hex(selectedChr, 2), 540, 408)
+    text('Cursor X,Y: $'+hex(dfile.cx, 2)+',$'+hex(dfile.cy, 2), 540, 428)
+    text('Cursor d-file byte offset: $'+hex(o, 3), 540, 448)
+    text('Char at cursor pos: $'+hex(dfile.getCharAt(dfile.cx, dfile.cy), 2), 540, 468)
   }
+
   // if (traceimg != null) {
   //   image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
   // }
