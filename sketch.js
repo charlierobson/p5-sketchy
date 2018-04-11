@@ -35,7 +35,11 @@ function filedropped(dropped) {
       resetUndo(); 
     }
   } else if (dropped.type === 'image') {
-    traceimg = createImg(dropped.data).hide();
+    let img = loadImage(dropped.data, function()
+      {
+        console.log(img.width, img.height);
+        dfile.importpng6448(img);
+      });
   }
 };
 
