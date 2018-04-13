@@ -32,6 +32,12 @@ function filedropped(dropped) {
     } else {
       resetUndo(); 
     }
+  } else if (dropped.type === 'image') {
+    let img = loadImage(dropped.data, function()
+      {
+        console.log(img.width, img.height);
+        dfile.importpng6448(img);
+      });
   }
 };
 

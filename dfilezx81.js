@@ -18,13 +18,13 @@ function dfilezx81() {
     }
 
     this.cls = function () {
-        this.regionalAction(0, 0, 32, 24, (n,c) => 0)
+        this.regionalAction(0, 0, 32, 24, (n, c) => 0)
         this.cx = 0
         this.cy = 0
     }
 
     this.regionalAction = function (x, y, w, h, fn) {
-        for (let n =0, yy = y; yy < y + h; ++yy) {
+        for (let n = 0, yy = y; yy < y + h; ++yy) {
             for (let xx = x; xx < x + w; ++xx) {
                 let b = this.dfile[xx + yy * 32]
                 let c = fn(n++, b)
@@ -34,11 +34,11 @@ function dfilezx81() {
         }
     }
 
-    this.getCharAt = function(x, y) {
+    this.getCharAt = function (x, y) {
         return this.dfile[x + 32 * y]
     }
 
-    this.setCharAt = function(x, y, c) {
+    this.setCharAt = function (x, y, c) {
         this.changed |= this.dfile[x + 32 * y] != c
         this.dfile[x + 32 * y] = c
     }
@@ -244,9 +244,9 @@ function dfilezx81() {
         this.cls();
         let regex = /\$[0-9A-Fa-f]{2}/g;
         let result = input.match(regex);
-        if (result != null && (result.length == 768 || result.length == 768+25)) {
+        if (result != null && (result.length == 768 || result.length == 768 + 25)) {
             for (let n = 0, i = 0; i < result.length; ++i) {
-                let v = parseInt(result[i].substring(1, 3),16);
+                let v = parseInt(result[i].substring(1, 3), 16);
                 if (v != 0x76) {
                     this.dfile[n++] = v;
                 }
@@ -255,5 +255,17 @@ function dfilezx81() {
             return true;
         }
         return false;
+    }
+
+    this.importpng6448 = function (input) {
+        this.cls();
+        input.loadPixels();
+        for (let p = 0, y = 0; y < 48; ++y) {
+            for (let x = 0; x < 64; ++x) {
+                let sr = input.pixels[p] == 0 ? 1 : 0;
+                this.plot(x, y, sr);
+                p+=4;
+            }
+        }
     }
 }
