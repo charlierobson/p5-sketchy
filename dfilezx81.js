@@ -51,6 +51,36 @@ function dfilezx81() {
         return glyph;
     }
 
+    this.threedmm = function () {
+        if (this.exit == undefined) {
+            this.exit = [];
+            for (let i = 0; i < 22; ++i) {
+                let c = random(128);
+                if (c > 64) c += 64;
+                this.exit.push((int)(c));
+            }
+        }
+        else {
+            let c = random(128);
+            if (c > 64) c += 64;
+            this.exit = this.exit.slice(1);
+            this.exit.push((int)(c));
+        }
+
+        this.printat(3, 23, "DROP SCREEN DATA FILE HERE");
+        this.square(5, 1, 22, 128);
+        for (let s = 2; s < 22; s += 2) {
+            this.square(16-(s/2), 12-(s/2), s, this.exit[(18-s)/2]);
+        }
+    }
+
+    this.square = function(x, y, s, c) {
+        this.regionalAction(x,y,  s,1,()=>c);
+        this.regionalAction(x+s-1,y,1,s,()=>c);
+        this.regionalAction(x,y+s-1,s,1,()=>c);
+        this.regionalAction(x,y,  1,s,()=>c);
+    }
+
     this.a2z = function (cc) {
         let zeddycs = " ??????????\"£$:?()><=+-*/;,.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let i = zeddycs.indexOf(cc.toUpperCase());

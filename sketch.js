@@ -9,8 +9,6 @@ var undoLevel = 0;
 
 var selectedChr = 0;
 
-var traceimg = null;
-
 var config = new Object();
 
 
@@ -34,8 +32,6 @@ function filedropped(dropped) {
     } else {
       resetUndo(); 
     }
-  } else if (dropped.type === 'image') {
-    traceimg = createImg(dropped.data).hide();
   }
 };
 
@@ -52,11 +48,6 @@ function setup() {
 
   let params = getURLParams();
 
-  if (params.dev != undefined) {
-    config['dev'] = params.dev === "true";
-  }
-  else config['dev'] = false;
-
   if (params.usenl != undefined) {
     config['usenl'] = params.usenl === "true";
   }
@@ -66,7 +57,7 @@ function setup() {
     dfilePanel,
     new TextButton("CLS", 24, 408, () => { dfile.cls(); snapUndo() }),
     new TextButton("SAVE", 4 * 16 + 24, 408, () => { dfile.save() }),
-    new TextButton("LOAD", 9 * 16 + 24, 408, () => { dfile.cls(); dfile.printat(1, 1, "DROP SCREEN DATA FILE HERE") }),
+    new TextButton("LOAD", 9 * 16 + 24, 408, () => { dfile.cls(); dfile.threedmm(); }),
     new TextButton("UNDO", 14 * 16 + 24, 408, () => { undo() }, () => undoLevel != 0),
     new TextButton("REDO", 19 * 16 + 24, 408, () => { redo() }, () => undoLevel != undoBuffer.length-1),
   ]
@@ -129,19 +120,13 @@ function draw() {
   tellButtons((x) => { x.draw(); })
   mode.draw();
 
-  if (config['dev']) {
-    let o = 1 + dfile.cx + 33 * dfile.cy;
-    fill(0)
-    noStroke()
-    text('Selected char: $'+hex(selectedChr, 2), 540, 408)
-    text('Cursor X,Y: $'+hex(dfile.cx, 2)+',$'+hex(dfile.cy, 2), 540, 428)
-    text('Cursor d-file byte offset: $'+hex(o, 3), 540, 448)
-    text('Char at cursor pos: $'+hex(dfile.getCharAt(dfile.cx, dfile.cy), 2), 540, 468)
-  }
-
-  // if (traceimg != null) {
-  //   image(traceimg, dfilePanel.x, dfilePanel.y, 512, 384)
-  // }
+  let o = 1 + dfile.cx + 33 * dfile.cy;
+  fill(0)
+  noStroke()
+  text('Selected char: $'+hex(selectedChr, 2), 540, 408)
+  text('Cursor X,Y: $'+hex(dfile.cx, 2)+',$'+hex(dfile.cy, 2), 540, 428)
+  text('Cursor d-file byte offset: $'+hex(o, 3), 540, 448)
+  text('Char at cursor pos: $'+hex(dfile.getCharAt(dfile.cx, dfile.cy), 2), 540, 468)
 };
 
 function tellButtons(thingToDo) {
