@@ -129,8 +129,9 @@ function draw() {
   let o = 1 + dfile.cx + 33 * dfile.cy;
   fill(0)
   noStroke()
+  textAlign(LEFT,TOP);
   text('Selected char: $'+hex(selectedChr, 2), 540, 408)
-  text('Cursor X,Y: $'+hex(dfile.cx, 2)+',$'+hex(dfile.cy, 2), 540, 428)
+  text('Cursor X,Y: $'+hex(dfile.cx, 2)+', $'+hex(dfile.cy, 2), 540, 428)
   text('Cursor d-file byte offset: $'+hex(o, 3), 540, 448)
   text('Char at cursor pos: $'+hex(dfile.getCharAt(dfile.cx, dfile.cy), 2), 540, 468)
 };

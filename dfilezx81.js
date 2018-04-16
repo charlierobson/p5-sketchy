@@ -54,7 +54,7 @@ function dfilezx81() {
     this.threedmm = function () {
         if (this.exit == undefined) {
             this.exit = [];
-            for (let i = 0; i < 22; ++i) {
+            for (let i = 0; i < 32; ++i) {
                 let c = random(128);
                 if (c > 64) c += 64;
                 this.exit.push((int)(c));
@@ -67,18 +67,19 @@ function dfilezx81() {
             this.exit.push((int)(c));
         }
 
-        this.printat(3, 23, "DROP SCREEN DATA FILE HERE");
-        this.square(5, 1, 22, 128);
+        this.printat(4,  0, "DROP 64X48 PNG FILE HERE");
+        this.printat(3, 23, "DROP SCREEN .TXT FILE HERE");
+        this.rect(5, 1, 22, 22, 128);
         for (let s = 2; s < 22; s += 2) {
-            this.square(16-(s/2), 12-(s/2), s, this.exit[(18-s)/2]);
+            this.rect(16-(s/2), 12-(s/2), s, s, this.exit[(22-s)/2]);
         }
     }
 
-    this.square = function(x, y, s, c) {
-        this.regionalAction(x,y,  s,1,()=>c);
-        this.regionalAction(x+s-1,y,1,s,()=>c);
-        this.regionalAction(x,y+s-1,s,1,()=>c);
-        this.regionalAction(x,y,  1,s,()=>c);
+    this.rect = function(x, y, w, h, c) {
+        this.regionalAction(x, y, w, 1, ()=>c);
+        this.regionalAction(x + w - 1, y, 1, h, ()=>c);
+        this.regionalAction(x, y + h - 1, w, 1, ()=>c);
+        this.regionalAction(x, y, 1, h, ()=>c);
     }
 
     this.a2z = function (cc) {

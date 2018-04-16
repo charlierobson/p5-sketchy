@@ -187,7 +187,8 @@ const SelectMode = function () {
             dfile.regionalAction(this.selrectx, this.selrecty, this.selrectw, this.selrecth, (n, c) => c ^ 128)
             snapUndo()
         }),
-        new TextButton("COPY", 12 * 16 + 24, 440, () => { mode.end(); mode = new PasteMode(this.selrectx, this.selrecty, this.selrectw, this.selrecth) })
+        new TextButton("COPY", 12 * 16 + 24, 440, () => { mode.end(); mode = new PasteMode(this.selrectx, this.selrecty, this.selrectw, this.selrecth) }),
+        new TextButton("RECT", 17 * 16 + 24, 440, () => {  dfile.rect(this.selrectx, this.selrecty, this.selrectw, this.selrecth, selectedChr)})
     ]
 
     this.dragStartX = (int)((mouseX - dfilePanel.x) / 16);
@@ -199,6 +200,7 @@ const SelectMode = function () {
         "Click FILL after selecting a character to use.",
         "Click INVERT to invert the region.",
         "Click COPY to copy the content within the region.",
+        "Click RECT to draw a rectangle with the selected character.",
     ]
 }
 
